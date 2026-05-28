@@ -99,6 +99,8 @@ def test_workspace_builds(qtbot) -> None:
     "gh_desktop.ui.modes.investigation.InvestigationMode",
     "gh_desktop.ui.modes.admin.AdminMode",
     "gh_desktop.ui.modes.contents.ContentsMode",
+    "gh_desktop.ui.modes.search.SearchMode",
+    "gh_desktop.ui.modes.pulls.PullsMode",
 ])
 def test_modes_construct(qtbot, mode_cls_path: str) -> None:
     import importlib

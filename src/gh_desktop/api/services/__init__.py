@@ -7,7 +7,9 @@ from gh_desktop.api.services.issues import IssuesService
 from gh_desktop.api.services.members import MembersService
 from gh_desktop.api.services.notifications import NotificationsService
 from gh_desktop.api.services.orgs import OrgsService
+from gh_desktop.api.services.pulls import PullsService, ReviewEvent
 from gh_desktop.api.services.repos import ReposService
+from gh_desktop.api.services.search import SearchKind, SearchResult, SearchService
 from gh_desktop.api.services.secrets import SecretsService
 from gh_desktop.api.services.webhooks import WebhooksService
 
@@ -19,7 +21,12 @@ __all__ = [
     "MembersService",
     "NotificationsService",
     "OrgsService",
+    "PullsService",
     "ReposService",
+    "ReviewEvent",
+    "SearchKind",
+    "SearchResult",
+    "SearchService",
     "SecretsService",
     "WebhooksService",
 ]
