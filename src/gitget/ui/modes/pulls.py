@@ -9,6 +9,7 @@ from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (
     QComboBox,
     QHBoxLayout,
+    QInputDialog,
     QLabel,
     QLineEdit,
     QListWidget,
@@ -16,13 +17,19 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPushButton,
     QSplitter,
-    QTextEdit,
     QVBoxLayout,
     QWidget,
 )
 
 from gitget.api.services import PullsService
-from gitget.ui.widgets import DiffView, MarkdownView, StatusBanner, humanize, run_async
+from gitget.ui.widgets import (
+    DiffView,
+    MarkdownEditor,
+    MarkdownView,
+    StatusBanner,
+    humanize,
+    run_async,
+)
 from gitget.workspace import Workspace
 
 
@@ -36,6 +43,7 @@ class PullsMode(QWidget):
         self._prs: list[dict[str, Any]] = []
         self._current_pr: dict[str, Any] | None = None
         self._current_files: list[dict[str, Any]] = []
+        self._current_file: dict[str, Any] | None = None
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
@@ -96,8 +104,10 @@ class PullsMode(QWidget):
         rl = QVBoxLayout(right)
         rl.setContentsMargins(8, 8, 8, 8)
         rl.addWidget(QLabel("Review"))
-        self._review_body = QTextEdit()
-        self._review_body.setPlaceholderText("Optional review summary (markdown).")
+        self._review_body = MarkdownEditor(
+            preview_visible=False,
+            placeholder="Optional review summary (markdown). Required when requesting changes.",
+        )
         rl.addWidget(self._review_body, 1)
 
         btn_row = QHBoxLayout()
@@ -111,6 +121,11 @@ class PullsMode(QWidget):
         self._comment_btn.clicked.connect(lambda: self._submit_review("COMMENT"))
         btn_row.addWidget(self._comment_btn)
         rl.addLayout(btn_row)
+
+        # Inline comment on currently-selected diff line
+        self._inline_btn = QPushButton("Add comment on selected diff line…")
+        self._inline_btn.clicked.connect(self._add_inline_comment)
+        rl.addWidget(self._inline_btn)
 
         merge_row = QHBoxLayout()
         merge_row.addWidget(QLabel("Merge method:"))
@@ -230,6 +245,7 @@ class PullsMode(QWidget):
         if not items:
             return
         f: dict[str, Any] = items[0].data(Qt.ItemDataRole.UserRole)
+        self._current_file = f
         self._diff.set_patch(f.get("patch"))
 
     def _submit_review(self, event: str) -> None:
@@ -254,6 +270,56 @@ class PullsMode(QWidget):
         def on_done(_):
             self._review_body.clear()
             self._banner.show_info(f"Review submitted: {event}")
+
+        self._workers.append(
+            run_async(self, do, on_success=on_done, on_failure=self._on_error)
+        )
+
+    def _add_inline_comment(self) -> None:
+        if self._current_pr is None or self._scope is None:
+            self._banner.show_error("Select a PR first.")
+            return
+        if self._current_file is None:
+            self._banner.show_error("Select a file in the diff first.")
+            return
+
+        info = self._diff.current_line_info()
+        if info.side == "":
+            self._banner.show_error(
+                "Click on a diff line (+, -, or context) before adding a comment."
+            )
+            return
+
+        # Prefer commenting on the RIGHT side (new file). For removed lines use LEFT.
+        line = info.file_line_new if info.side == "RIGHT" else info.file_line_old
+        side = info.side
+        path = self._current_file.get("filename", "")
+        commit_id = (self._current_pr.get("head") or {}).get("sha")
+        if not commit_id:
+            self._banner.show_error("PR head SHA missing — refresh and try again.")
+            return
+
+        body, ok = QInputDialog.getMultiLineText(
+            self, "Add inline comment",
+            f"Comment on {path}:{line} ({side}):",
+        )
+        if not ok or not body.strip():
+            return
+
+        svc = self._svc
+        owner, repo = self._scope
+        number = self._current_pr["number"]
+        body_text = body.strip()
+
+        async def do():
+            return await svc.add_review_comment(
+                owner, repo, number,
+                body=body_text, commit_id=commit_id,
+                path=path, line=line, side=side,
+            )
+
+        def on_done(_):
+            self._banner.show_info(f"Comment posted on {path}:{line}")
 
         self._workers.append(
             run_async(self, do, on_success=on_done, on_failure=self._on_error)

@@ -21,14 +21,13 @@ from PySide6.QtWidgets import (
     QListWidgetItem,
     QPushButton,
     QSplitter,
-    QTextEdit,
     QVBoxLayout,
     QWidget,
 )
 
 from gitget.api.services import DiscussionsService, IssuesService
 from gitget.models import Discussion, Issue
-from gitget.ui.widgets import MarkdownView, StatusBanner, humanize, run_async
+from gitget.ui.widgets import MarkdownEditor, MarkdownView, StatusBanner, humanize, run_async
 from gitget.workspace import Workspace
 
 DEFAULT_EVIDENCE_LABEL = "evidence"
@@ -100,9 +99,11 @@ class InvestigationMode(QWidget):
 
         # reply box
         cl.addWidget(QLabel("Reply"))
-        self._reply_edit = QTextEdit()
-        self._reply_edit.setMaximumHeight(120)
-        self._reply_edit.setPlaceholderText("Markdown supported. Submit posts to the discussion.")
+        self._reply_edit = MarkdownEditor(
+            preview_visible=False,
+            placeholder="Markdown supported. Submit posts to the discussion.",
+        )
+        self._reply_edit.setMaximumHeight(180)
         cl.addWidget(self._reply_edit)
         reply_row = QHBoxLayout()
         reply_row.addStretch(1)

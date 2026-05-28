@@ -18,7 +18,12 @@ hidden_imports = (
        "uvicorn.protocols.websockets.auto", "uvicorn.lifespan.on"]
 )
 
-datas = collect_data_files("PySide6")
+import os
+_HERE = os.path.dirname(os.path.abspath(SPEC))
+_ASSETS = os.path.join(_HERE, "..", "src", "gitget", "assets")
+datas = collect_data_files("PySide6") + [
+    (os.path.join(_ASSETS, "gitget.svg"), "gitget/assets"),
+]
 
 a = Analysis(
     ["../src/gitget/__main__.py"],

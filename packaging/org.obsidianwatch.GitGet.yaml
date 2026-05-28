@@ -1,0 +1,53 @@
+# Flatpak manifest for GitGet.
+#
+# Build (from project root):
+#   flatpak install -y flathub org.freedesktop.Sdk//23.08 org.freedesktop.Platform//23.08
+#   flatpak install -y flathub org.freedesktop.Sdk.Extension.python3//23.08
+#   flatpak-builder --user --install --force-clean build packaging/org.obsidianwatch.GitGet.yaml
+#
+# Run:
+#   flatpak run org.obsidianwatch.GitGet
+#
+# This manifest installs the PyInstaller-built single binary plus desktop/icon
+# files. It is the simplest path that works with our existing build chain.
+# A "build from source" manifest would be cleaner long-term but requires
+# vendoring all Python wheels into the Flatpak sandbox.
+
+app-id: org.obsidianwatch.GitGet
+runtime: org.freedesktop.Platform
+runtime-version: '23.08'
+sdk: org.freedesktop.Sdk
+command: gitget
+
+finish-args:
+  - --share=ipc
+  - --share=network
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri
+  - --talk-name=org.freedesktop.secrets       # libsecret/keyring
+  - --talk-name=org.freedesktop.Notifications  # desktop notifications
+  - --filesystem=xdg-config/gitget            # config dir
+  - --filesystem=xdg-data/gitget              # data dir (events.db etc.)
+  - --filesystem=xdg-cache/gitget             # cache dir (etag cache)
+  - --env=QT_QPA_PLATFORMTHEME=
+
+modules:
+  - name: gitget
+    buildsystem: simple
+    sources:
+      - type: file
+        # Built locally via:  uv run pyinstaller packaging/gitget.spec
+        path: ../dist/gitget
+      - type: file
+        path: gitget.desktop
+      - type: file
+        path: icons/gitget-256.png
+        dest-filename: gitget.png
+      - type: file
+        path: ../src/gitget/assets/gitget.svg
+    build-commands:
+      - install -Dm755 gitget /app/bin/gitget
+      - install -Dm644 gitget.desktop /app/share/applications/org.obsidianwatch.GitGet.desktop
+      - install -Dm644 gitget.png /app/share/icons/hicolor/256x256/apps/org.obsidianwatch.GitGet.png
+      - install -Dm644 gitget.svg /app/share/icons/hicolor/scalable/apps/org.obsidianwatch.GitGet.svg

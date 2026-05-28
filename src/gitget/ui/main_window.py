@@ -28,6 +28,7 @@ from gitget.ui.modes.triage import TriageMode
 from gitget.ui.repo_picker import RepoPicker
 from gitget.ui.settings import SettingsDialog
 from gitget.ui.theme import ACCENT_HI, APP_NAME, APP_TAGLINE
+from gitget.ui.tray import TrayIcon
 from gitget.ui.widgets import Terminal
 from gitget.workspace import Workspace
 
@@ -50,11 +51,13 @@ class MainWindow(QMainWindow):
         self._workspace_widget: QWidget | None = None
         self._terminal_dock: QDockWidget | None = None
         self._terminal: Terminal | None = None
+        self._tray: TrayIcon | None = None
 
         self.setStatusBar(QStatusBar())
 
         self._build_menus()
         self._build_terminal_dock()
+        self._build_tray()
         self._route_initial()
 
     # ---------- menus ----------
@@ -100,6 +103,32 @@ class MainWindow(QMainWindow):
         act_about = QAction(f"About {APP_NAME}", self)
         act_about.triggered.connect(self._show_about)
         help_menu.addAction(act_about)
+
+    def _build_tray(self) -> None:
+        from PySide6.QtWidgets import QSystemTrayIcon
+
+        if not QSystemTrayIcon.isSystemTrayAvailable():
+            return
+        self._tray = TrayIcon(self)
+        self._tray.show_requested.connect(self._toggle_window_visible)
+        self._tray.refresh_requested.connect(self._refresh_notifications_from_tray)
+        self._tray.settings_requested.connect(self._open_settings)
+        self._tray.show()
+
+    def _toggle_window_visible(self) -> None:
+        if self.isVisible() and not self.isMinimized():
+            self.hide()
+        else:
+            self.showNormal()
+            self.raise_()
+            self.activateWindow()
+
+    def _refresh_notifications_from_tray(self) -> None:
+        # If signed in, trigger an immediate poll
+        if self._workspace is not None:
+            self._workspace.poller.trigger_now("notifications")
+        else:
+            self._toggle_window_visible()
 
     def _build_terminal_dock(self) -> None:
         dock = QDockWidget("Terminal", self)
@@ -230,6 +259,15 @@ class MainWindow(QMainWindow):
             interval=float(self._settings.poll_notifications_seconds),
             fetch=fetch_notifications,
         )
+        # Hook the unread count into the tray badge
+        if self._tray is not None:
+            def _on_notif_change(resource, value):
+                if resource != "notifications" or not isinstance(value, list):
+                    return
+                unread = sum(1 for n in value if getattr(n, "unread", False))
+                self._tray.set_unread(unread)
+            ws.poller.changed.connect(_on_notif_change)
+
         ws.poller.start()
 
         # Start webhook bridge / tunnel if configured

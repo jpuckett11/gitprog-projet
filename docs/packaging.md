@@ -48,6 +48,28 @@ Replace `packaging/gitget.png` with a real 256×256 PNG before publishing.
 
 ## Flatpak
 
-Not included in this round. The Flatpak manifest would live at
-`packaging/org.obsidianwatch.GhDesktop.yaml` and use the Freedesktop SDK
-runtime with the same PyInstaller binary as input.
+Manifest lives at `packaging/org.obsidianwatch.GitGet.yaml`. It bundles the
+PyInstaller-built binary plus desktop entry and icons.
+
+Prereqs:
+
+```bash
+sudo apt install flatpak flatpak-builder
+flatpak install -y flathub org.freedesktop.Sdk//23.08 org.freedesktop.Platform//23.08
+```
+
+Build + install for the current user:
+
+```bash
+flatpak-builder --user --install --force-clean build packaging/org.obsidianwatch.GitGet.yaml
+```
+
+Run:
+
+```bash
+flatpak run org.obsidianwatch.GitGet
+```
+
+The manifest grants secret-service, notifications, network, and the three
+`xdg-{config,data,cache}/gitget` paths so the app behaves the same as a native
+install (token storage, polling cache, etc).

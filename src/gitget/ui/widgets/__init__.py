@@ -5,6 +5,7 @@ from gitget.ui.widgets.banners import StatusBanner
 from gitget.ui.widgets.diff import DiffView
 from gitget.ui.widgets.labels import LabelChip, LabelChipRow
 from gitget.ui.widgets.markdown import MarkdownView
+from gitget.ui.widgets.md_editor import MarkdownEditor
 from gitget.ui.widgets.terminal import Terminal
 from gitget.ui.widgets.timeutil import humanize
 
@@ -12,6 +13,7 @@ __all__ = [
     "DiffView",
     "LabelChip",
     "LabelChipRow",
+    "MarkdownEditor",
     "MarkdownView",
     "StatusBanner",
     "Terminal",
