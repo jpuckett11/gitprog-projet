@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 
 from PySide6.QtCore import Qt, QThread, Signal
+from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
@@ -15,6 +16,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from gitget.assets import icon_path
 from gitget.auth import OAuthError, TokenResponse, oauth, storage
 from gitget.config import Settings
 from gitget.ui.theme import ACCENT_HI, APP_NAME, APP_TAGLINE, ERROR, SUCCESS, TEXT_MUTED
@@ -84,6 +86,20 @@ class LoginPane(QWidget):
         layout = QVBoxLayout(card)
         layout.setContentsMargins(40, 36, 40, 36)
         layout.setSpacing(12)
+
+        # Icon
+        icon_label = QLabel()
+        icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        pix = QPixmap(str(icon_path()))
+        if not pix.isNull():
+            icon_label.setPixmap(
+                pix.scaled(
+                    128, 128,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+        layout.addWidget(icon_label)
 
         # Brand
         brand = QLabel(APP_NAME)

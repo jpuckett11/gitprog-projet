@@ -5,8 +5,10 @@ from __future__ import annotations
 import sys
 
 import structlog
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
+from gitget.assets import icon_path
 from gitget.config import LOG_DIR, Settings
 from gitget.ui import MainWindow
 from gitget.ui.theme import APP_NAME, apply_theme
@@ -41,6 +43,7 @@ def run() -> int:
     app.setApplicationDisplayName(APP_NAME)
     app.setOrganizationName("Obsidian Watch Group")
     app.setOrganizationDomain("obsidianwatch.org")
+    app.setWindowIcon(QIcon(str(icon_path())))
     apply_theme(app)
 
     window = MainWindow(settings)

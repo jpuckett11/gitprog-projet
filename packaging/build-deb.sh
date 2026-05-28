@@ -19,17 +19,26 @@ if [[ ! -f dist/gitget ]]; then
     exit 1
 fi
 
-# /opt/gitget/gitget   the binary
-# /usr/bin/gitget          symlink
-# /usr/share/applications/...  .desktop file
-# /usr/share/icons/.../gitget.png   icon (placeholder)
+# /opt/gitget/gitget        the binary
+# /usr/bin/gitget           symlink
+# /usr/share/applications/  .desktop file
+# /usr/share/icons/hicolor/<size>/apps/gitget.png  rasterized icons
+# /usr/share/icons/hicolor/scalable/apps/gitget.svg  vector icon
 install -Dm755 dist/gitget                "${ROOT}/opt/gitget/gitget"
 install -Dm644 packaging/gitget.desktop   "${ROOT}/usr/share/applications/gitget.desktop"
 mkdir -p "${ROOT}/usr/bin"
 ln -s ../../opt/gitget/gitget "${ROOT}/usr/bin/gitget"
 
-# placeholder icon — replace with a real PNG before publishing
-install -Dm644 /dev/null "${ROOT}/usr/share/icons/hicolor/256x256/apps/gitget.png"
+# Render PNGs if they don't exist (idempotent)
+if [[ ! -f packaging/icons/gitget-256.png ]]; then
+    uv run python packaging/render_pngs.py
+fi
+for size in 16 24 32 48 64 128 256 512; do
+    install -Dm644 "packaging/icons/gitget-${size}.png" \
+        "${ROOT}/usr/share/icons/hicolor/${size}x${size}/apps/gitget.png"
+done
+install -Dm644 src/gitget/assets/gitget.svg \
+    "${ROOT}/usr/share/icons/hicolor/scalable/apps/gitget.svg"
 
 # control file
 install -Dm644 /dev/null "${ROOT}/DEBIAN/control"

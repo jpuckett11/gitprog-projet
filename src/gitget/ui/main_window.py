@@ -147,12 +147,26 @@ class MainWindow(QMainWindow):
                 return
 
     def _show_about(self) -> None:
+        from PySide6.QtGui import QPixmap
+
         from gitget import __version__
-        QMessageBox.about(
-            self,
-            f"About {APP_NAME}",
+        from gitget.assets import icon_path
+
+        box = QMessageBox(self)
+        box.setWindowTitle(f"About {APP_NAME}")
+        pix = QPixmap(str(icon_path()))
+        if not pix.isNull():
+            box.setIconPixmap(
+                pix.scaled(
+                    128, 128,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+        box.setTextFormat(Qt.TextFormat.RichText)
+        box.setText(
             f"""
-            <div style="text-align:center;">
+            <div style="text-align:left;">
               <h2 style="color:{ACCENT_HI}; margin-bottom: 4px;">{APP_NAME}</h2>
               <p style="color:#a094b8; margin-top: 0;">{APP_TAGLINE}</p>
               <p>Version {__version__}</p>
@@ -164,8 +178,9 @@ class MainWindow(QMainWindow):
                 © Obsidian Watch Group · investigations@obsidianwatch.org
               </p>
             </div>
-            """,
+            """
         )
+        box.exec()
 
     def _open_settings(self) -> None:
         dlg = SettingsDialog(self._settings, self)
