@@ -27,6 +27,7 @@ from gh_desktop.ui.modes.search import SearchMode
 from gh_desktop.ui.modes.triage import TriageMode
 from gh_desktop.ui.repo_picker import RepoPicker
 from gh_desktop.ui.settings import SettingsDialog
+from gh_desktop.ui.theme import ACCENT_HI, APP_NAME, APP_TAGLINE
 from gh_desktop.ui.widgets import Terminal
 from gh_desktop.workspace import Workspace
 
@@ -36,7 +37,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self._settings = settings
         self._workspace: Workspace | None = None
-        self.setWindowTitle("gh-desktop")
+        self.setWindowTitle(f"{APP_NAME} — {APP_TAGLINE}")
         self.resize(1280, 800)
 
         self._stack = QStackedWidget()
@@ -95,6 +96,11 @@ class MainWindow(QMainWindow):
         act_refresh.triggered.connect(self._refresh_current_view)
         view_menu.addAction(act_refresh)
 
+        help_menu = self.menuBar().addMenu("&Help")
+        act_about = QAction(f"About {APP_NAME}", self)
+        act_about.triggered.connect(self._show_about)
+        help_menu.addAction(act_about)
+
     def _build_terminal_dock(self) -> None:
         dock = QDockWidget("Terminal", self)
         dock.setAllowedAreas(
@@ -139,6 +145,27 @@ class MainWindow(QMainWindow):
             if callable(fn):
                 fn()
                 return
+
+    def _show_about(self) -> None:
+        from gh_desktop import __version__
+        QMessageBox.about(
+            self,
+            f"About {APP_NAME}",
+            f"""
+            <div style="text-align:center;">
+              <h2 style="color:{ACCENT_HI}; margin-bottom: 4px;">{APP_NAME}</h2>
+              <p style="color:#a094b8; margin-top: 0;">{APP_TAGLINE}</p>
+              <p>Version {__version__}</p>
+              <p style="color:#a094b8;">
+                A Linux GitHub client for triage, investigation,
+                code review, and org administration.
+              </p>
+              <p style="color:#a094b8; font-size:9pt;">
+                © Obsidian Watch Group · investigations@obsidianwatch.org
+              </p>
+            </div>
+            """,
+        )
 
     def _open_settings(self) -> None:
         dlg = SettingsDialog(self._settings, self)

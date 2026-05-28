@@ -80,7 +80,7 @@ def test_main_window_constructs(qtbot) -> None:
 
     w = MainWindow(Settings())
     qtbot.addWidget(w)
-    assert w.windowTitle() == "gh-desktop"
+    assert "GitGet" in w.windowTitle()
 
 
 def test_workspace_builds(qtbot) -> None:
