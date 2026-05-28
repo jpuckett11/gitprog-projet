@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
-from PySide6.QtGui import QAction
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtWidgets import (
+    QDockWidget,
     QMainWindow,
     QMessageBox,
     QSplitter,
@@ -23,6 +25,7 @@ from gh_desktop.ui.modes.investigation import InvestigationMode
 from gh_desktop.ui.modes.triage import TriageMode
 from gh_desktop.ui.repo_picker import RepoPicker
 from gh_desktop.ui.settings import SettingsDialog
+from gh_desktop.ui.widgets import Terminal
 from gh_desktop.workspace import Workspace
 
 
@@ -42,10 +45,13 @@ class MainWindow(QMainWindow):
         self._stack.addWidget(self._login)
 
         self._workspace_widget: QWidget | None = None
+        self._terminal_dock: QDockWidget | None = None
+        self._terminal: Terminal | None = None
 
         self.setStatusBar(QStatusBar())
 
         self._build_menus()
+        self._build_terminal_dock()
         self._route_initial()
 
     # ---------- menus ----------
@@ -63,8 +69,74 @@ class MainWindow(QMainWindow):
 
         file_menu.addSeparator()
         act_quit = QAction("&Quit", self)
+        act_quit.setShortcut(QKeySequence("Ctrl+Q"))
         act_quit.triggered.connect(self.close)
         file_menu.addAction(act_quit)
+
+        view_menu = self.menuBar().addMenu("&View")
+
+        self._act_toggle_terminal = QAction("Toggle &Terminal", self)
+        self._act_toggle_terminal.setCheckable(True)
+        self._act_toggle_terminal.setShortcut(QKeySequence("Ctrl+`"))
+        self._act_toggle_terminal.triggered.connect(self._toggle_terminal)
+        view_menu.addAction(self._act_toggle_terminal)
+
+        act_focus_terminal = QAction("Focus terminal input", self)
+        act_focus_terminal.setShortcut(QKeySequence("Ctrl+Shift+`"))
+        act_focus_terminal.triggered.connect(self._focus_terminal)
+        view_menu.addAction(act_focus_terminal)
+
+        view_menu.addSeparator()
+
+        act_refresh = QAction("Refresh current view", self)
+        act_refresh.setShortcut(QKeySequence("Ctrl+R"))
+        act_refresh.triggered.connect(self._refresh_current_view)
+        view_menu.addAction(act_refresh)
+
+    def _build_terminal_dock(self) -> None:
+        dock = QDockWidget("Terminal", self)
+        dock.setAllowedAreas(
+            Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea
+        )
+        dock.setFeatures(
+            QDockWidget.DockWidgetFeature.DockWidgetClosable
+            | QDockWidget.DockWidgetFeature.DockWidgetMovable
+            | QDockWidget.DockWidgetFeature.DockWidgetFloatable
+        )
+        self._terminal = Terminal()
+        dock.setWidget(self._terminal)
+        dock.setMinimumHeight(180)
+        self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, dock)
+        dock.hide()  # start collapsed
+        dock.visibilityChanged.connect(self._on_terminal_visibility_changed)
+        self._terminal_dock = dock
+
+    def _toggle_terminal(self) -> None:
+        if self._terminal_dock is None:
+            return
+        self._terminal_dock.setVisible(not self._terminal_dock.isVisible())
+        if self._terminal_dock.isVisible() and self._terminal is not None:
+            self._terminal.focus_input()
+
+    def _on_terminal_visibility_changed(self, visible: bool) -> None:
+        self._act_toggle_terminal.setChecked(visible)
+
+    def _focus_terminal(self) -> None:
+        if self._terminal_dock is None or self._terminal is None:
+            return
+        if not self._terminal_dock.isVisible():
+            self._terminal_dock.setVisible(True)
+        self._terminal.focus_input()
+
+    def _refresh_current_view(self) -> None:
+        if self._workspace_widget is None:
+            return
+        current = self._tabs.currentWidget()
+        for method in ("refresh", "_load_root", "_reload"):
+            fn = getattr(current, method, None)
+            if callable(fn):
+                fn()
+                return
 
     def _open_settings(self) -> None:
         dlg = SettingsDialog(self._settings, self)
