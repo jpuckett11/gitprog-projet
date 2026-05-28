@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=gitget
+GenericName=GitHub client
+Comment=Triage, investigate, and admin your GitHub repos
+Exec=gitget %U
+Icon=gitget
+Terminal=false
+Categories=Development;RevisionControl;Network;
+Keywords=github;git;issues;pull request;discussion;
+StartupNotify=true

@@ -7,18 +7,18 @@ import pytest
 
 def test_imports() -> None:
     """All top-level modules import without error."""
-    import gh_desktop
-    import gh_desktop.api
-    import gh_desktop.api.services
-    import gh_desktop.auth
-    import gh_desktop.config
-    import gh_desktop.models
-    import gh_desktop.polling
-    import gh_desktop.workspace  # noqa: F401
+    import gitget
+    import gitget.api
+    import gitget.api.services
+    import gitget.auth
+    import gitget.config
+    import gitget.models
+    import gitget.polling
+    import gitget.workspace  # noqa: F401
 
 
 def test_settings_defaults() -> None:
-    from gh_desktop.config import Settings
+    from gitget.config import Settings
 
     s = Settings()
     assert s.api_base.startswith("https://")
@@ -26,7 +26,7 @@ def test_settings_defaults() -> None:
 
 
 def test_pkce_pair_unique() -> None:
-    from gh_desktop.auth.oauth import _pkce_pair
+    from gitget.auth.oauth import _pkce_pair
 
     v1, c1 = _pkce_pair()
     v2, c2 = _pkce_pair()
@@ -41,7 +41,7 @@ def test_make_jwt_roundtrip() -> None:
     from cryptography.hazmat.primitives import serialization
     from cryptography.hazmat.primitives.asymmetric import rsa
 
-    from gh_desktop.auth.github_app import make_jwt
+    from gitget.auth.github_app import make_jwt
 
     key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
     pem = key.private_bytes(
@@ -64,7 +64,7 @@ def test_secret_encryption_roundtrip() -> None:
 
     from nacl import encoding, public
 
-    from gh_desktop.api.services.secrets import encrypt_secret
+    from gitget.api.services.secrets import encrypt_secret
 
     sk = public.PrivateKey.generate()
     pk_b64 = sk.public_key.encode(encoder=encoding.Base64Encoder).decode()
@@ -75,8 +75,8 @@ def test_secret_encryption_roundtrip() -> None:
 
 def test_main_window_constructs(qtbot) -> None:
     """MainWindow constructs without crashing (no auth required)."""
-    from gh_desktop.config import Settings
-    from gh_desktop.ui.main_window import MainWindow
+    from gitget.config import Settings
+    from gitget.ui.main_window import MainWindow
 
     w = MainWindow(Settings())
     qtbot.addWidget(w)
@@ -85,8 +85,8 @@ def test_main_window_constructs(qtbot) -> None:
 
 def test_workspace_builds(qtbot) -> None:
     """Workspace.build wires all clients without running them."""
-    from gh_desktop.config import Settings
-    from gh_desktop.workspace import Workspace
+    from gitget.config import Settings
+    from gitget.workspace import Workspace
 
     ws = Workspace.build(Settings())
     assert ws.rest is not None
@@ -95,18 +95,18 @@ def test_workspace_builds(qtbot) -> None:
 
 
 @pytest.mark.parametrize("mode_cls_path", [
-    "gh_desktop.ui.modes.triage.TriageMode",
-    "gh_desktop.ui.modes.investigation.InvestigationMode",
-    "gh_desktop.ui.modes.admin.AdminMode",
-    "gh_desktop.ui.modes.contents.ContentsMode",
-    "gh_desktop.ui.modes.search.SearchMode",
-    "gh_desktop.ui.modes.pulls.PullsMode",
+    "gitget.ui.modes.triage.TriageMode",
+    "gitget.ui.modes.investigation.InvestigationMode",
+    "gitget.ui.modes.admin.AdminMode",
+    "gitget.ui.modes.contents.ContentsMode",
+    "gitget.ui.modes.search.SearchMode",
+    "gitget.ui.modes.pulls.PullsMode",
 ])
 def test_modes_construct(qtbot, mode_cls_path: str) -> None:
     import importlib
 
-    from gh_desktop.config import Settings
-    from gh_desktop.workspace import Workspace
+    from gitget.config import Settings
+    from gitget.workspace import Workspace
 
     module_name, cls_name = mode_cls_path.rsplit(".", 1)
     cls = getattr(importlib.import_module(module_name), cls_name)
@@ -116,9 +116,9 @@ def test_modes_construct(qtbot, mode_cls_path: str) -> None:
 
 
 def test_repo_picker_constructs(qtbot) -> None:
-    from gh_desktop.config import Settings
-    from gh_desktop.ui.repo_picker import RepoPicker
-    from gh_desktop.workspace import Workspace
+    from gitget.config import Settings
+    from gitget.ui.repo_picker import RepoPicker
+    from gitget.workspace import Workspace
 
     ws = Workspace.build(Settings())
     w = RepoPicker(ws)

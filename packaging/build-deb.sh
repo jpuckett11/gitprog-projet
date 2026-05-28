@@ -4,37 +4,37 @@
 # Usage:
 #   ./packaging/build-deb.sh [VERSION]
 #
-# Requires: dpkg-deb. Produces gh-desktop_<version>_amd64.deb in the project root.
+# Requires: dpkg-deb. Produces gitget_<version>_amd64.deb in the project root.
 
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 VERSION="${1:-0.1.0}"
 WORK="$(mktemp -d)"
-PKG="gh-desktop_${VERSION}_amd64"
+PKG="gitget_${VERSION}_amd64"
 ROOT="${WORK}/${PKG}"
 
-if [[ ! -f dist/gh-desktop ]]; then
-    echo "Run pyinstaller first:  uv run pyinstaller packaging/gh-desktop.spec" >&2
+if [[ ! -f dist/gitget ]]; then
+    echo "Run pyinstaller first:  uv run pyinstaller packaging/gitget.spec" >&2
     exit 1
 fi
 
-# /opt/gh-desktop/gh-desktop   the binary
-# /usr/bin/gh-desktop          symlink
+# /opt/gitget/gitget   the binary
+# /usr/bin/gitget          symlink
 # /usr/share/applications/...  .desktop file
-# /usr/share/icons/.../gh-desktop.png   icon (placeholder)
-install -Dm755 dist/gh-desktop                "${ROOT}/opt/gh-desktop/gh-desktop"
-install -Dm644 packaging/gh-desktop.desktop   "${ROOT}/usr/share/applications/gh-desktop.desktop"
+# /usr/share/icons/.../gitget.png   icon (placeholder)
+install -Dm755 dist/gitget                "${ROOT}/opt/gitget/gitget"
+install -Dm644 packaging/gitget.desktop   "${ROOT}/usr/share/applications/gitget.desktop"
 mkdir -p "${ROOT}/usr/bin"
-ln -s ../../opt/gh-desktop/gh-desktop "${ROOT}/usr/bin/gh-desktop"
+ln -s ../../opt/gitget/gitget "${ROOT}/usr/bin/gitget"
 
 # placeholder icon — replace with a real PNG before publishing
-install -Dm644 /dev/null "${ROOT}/usr/share/icons/hicolor/256x256/apps/gh-desktop.png"
+install -Dm644 /dev/null "${ROOT}/usr/share/icons/hicolor/256x256/apps/gitget.png"
 
 # control file
 install -Dm644 /dev/null "${ROOT}/DEBIAN/control"
 cat > "${ROOT}/DEBIAN/control" <<EOF
-Package: gh-desktop
+Package: gitget
 Version: ${VERSION}
 Section: vcs
 Priority: optional

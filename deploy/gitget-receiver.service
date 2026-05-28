@@ -1,0 +1,25 @@
+[Unit]
+Description=gitget webhook receiver
+Documentation=https://github.com/jpuckett11/gitget
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ghd-recv
+Group=ghd-recv
+WorkingDirectory=/opt/gitget-receiver
+ExecStart=/opt/gitget-receiver/.venv/bin/gitget-receiver --host 127.0.0.1 --port 8765
+Restart=on-failure
+RestartSec=5
+EnvironmentFile=/etc/gitget-receiver/env
+StateDirectory=gitget-receiver
+LogsDirectory=gitget-receiver
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/gitget-receiver /var/log/gitget-receiver
+
+[Install]
+WantedBy=multi-user.target

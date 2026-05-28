@@ -5,8 +5,8 @@ from __future__ import annotations
 import pytest
 from pytest_httpx import HTTPXMock
 
-from gh_desktop.api.rest import RestClient
-from gh_desktop.api.services import (
+from gitget.api.rest import RestClient
+from gitget.api.services import (
     ActionsService,
     IssuesService,
     NotificationsService,
@@ -15,7 +15,7 @@ from gh_desktop.api.services import (
     SecretsService,
     WebhooksService,
 )
-from gh_desktop.config import Settings
+from gitget.config import Settings
 
 
 @pytest.fixture

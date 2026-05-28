@@ -32,7 +32,7 @@ htmlcov/
 *.log
 *.db
 *.db-journal
-.gh-desktop-dev/
+.gitget-dev/
 
 # Secrets — never commit
 *.pem

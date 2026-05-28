@@ -1,4 +1,4 @@
-# gh-desktop
+# gitget
 
 Linux GitHub desktop app with three primary modes:
 
@@ -16,13 +16,13 @@ Phase 1 (foundation) — in progress.
 
 ```bash
 uv sync
-uv run gh-desktop
+uv run gitget
 ```
 
 ## Layout
 
 ```
-src/gh_desktop/
+src/gitget/
 ├── app.py              # QApplication bootstrap
 ├── __main__.py         # CLI entry
 ├── config.py           # Settings, paths

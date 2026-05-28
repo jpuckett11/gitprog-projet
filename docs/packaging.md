@@ -1,4 +1,4 @@
-# Packaging gh-desktop
+# Packaging gitget
 
 Two formats supported out of the box: **.deb** for Debian/Ubuntu installs, and
 **AppImage** for distro-agnostic single-file deployment. Both reuse the same
@@ -13,13 +13,13 @@ uv add --dev pyinstaller
 ## 2. Build the binary
 
 ```bash
-uv run pyinstaller packaging/gh-desktop.spec
+uv run pyinstaller packaging/gitget.spec
 ```
 
-Output goes to `dist/gh-desktop`. Test it standalone:
+Output goes to `dist/gitget`. Test it standalone:
 
 ```bash
-./dist/gh-desktop
+./dist/gitget
 ```
 
 ## 3a. Build the .deb
@@ -28,7 +28,7 @@ Output goes to `dist/gh-desktop`. Test it standalone:
 ./packaging/build-deb.sh 0.1.0
 ```
 
-Produces `gh-desktop_0.1.0_amd64.deb`. Install with `sudo apt install ./gh-desktop_0.1.0_amd64.deb`.
+Produces `gitget_0.1.0_amd64.deb`. Install with `sudo apt install ./gitget_0.1.0_amd64.deb`.
 
 ## 3b. Build the AppImage
 
@@ -39,12 +39,12 @@ and place it on `$PATH`, then:
 ./packaging/build-appimage.sh 0.1.0
 ```
 
-Produces `gh-desktop-0.1.0-x86_64.AppImage`. Mark it executable and run.
+Produces `gitget-0.1.0-x86_64.AppImage`. Mark it executable and run.
 
 ## Icon
 
-Both formats currently install a placeholder `gh-desktop.png` (empty file).
-Replace `packaging/gh-desktop.png` with a real 256×256 PNG before publishing.
+Both formats currently install a placeholder `gitget.png` (empty file).
+Replace `packaging/gitget.png` with a real 256×256 PNG before publishing.
 
 ## Flatpak
 

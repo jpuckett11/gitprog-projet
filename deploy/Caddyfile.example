@@ -1,4 +1,4 @@
-# Reverse-proxy + TLS termination for gh-desktop-receiver.
+# Reverse-proxy + TLS termination for gitget-receiver.
 #
 # Replace receiver.obsidianwatch.org with your hostname. Caddy will provision a
 # Let's Encrypt cert automatically as long as ports 80/443 are reachable.
@@ -27,7 +27,7 @@ receiver.obsidianwatch.org {
 
     # Log access for auditability
     log {
-        output file /var/log/caddy/gh-desktop-receiver.access.log
+        output file /var/log/caddy/gitget-receiver.access.log
         format json
     }
 }

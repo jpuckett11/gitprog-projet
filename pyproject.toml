@@ -1,5 +1,5 @@
 [project]
-name = "gh-desktop"
+name = "gitget"
 version = "0.1.0"
 description = "Linux GitHub desktop app: triage, investigation case management, and org admin"
 readme = "README.md"
@@ -30,8 +30,8 @@ dependencies = [
 ]
 
 [project.scripts]
-gh-desktop = "gh_desktop.__main__:main"
-gh-desktop-receiver = "gh_desktop.receiver.__main__:main"
+gitget = "gitget.__main__:main"
+gitget-receiver = "gitget.receiver.__main__:main"
 
 [dependency-groups]
 dev = [

@@ -9,29 +9,29 @@ cd "$(dirname "$0")/.."
 
 VERSION="${1:-0.1.0}"
 
-if [[ ! -f dist/gh-desktop ]]; then
-    echo "Run pyinstaller first:  uv run pyinstaller packaging/gh-desktop.spec" >&2
+if [[ ! -f dist/gitget ]]; then
+    echo "Run pyinstaller first:  uv run pyinstaller packaging/gitget.spec" >&2
     exit 1
 fi
 
-APPDIR="$(mktemp -d)/gh-desktop.AppDir"
+APPDIR="$(mktemp -d)/gitget.AppDir"
 mkdir -p "${APPDIR}/usr/bin" "${APPDIR}/usr/share/applications" \
          "${APPDIR}/usr/share/icons/hicolor/256x256/apps"
 
-install -Dm755 dist/gh-desktop                "${APPDIR}/usr/bin/gh-desktop"
-install -Dm644 packaging/gh-desktop.desktop   "${APPDIR}/gh-desktop.desktop"
-install -Dm644 packaging/gh-desktop.desktop   "${APPDIR}/usr/share/applications/gh-desktop.desktop"
-install -Dm644 /dev/null                      "${APPDIR}/gh-desktop.png"
+install -Dm755 dist/gitget                "${APPDIR}/usr/bin/gitget"
+install -Dm644 packaging/gitget.desktop   "${APPDIR}/gitget.desktop"
+install -Dm644 packaging/gitget.desktop   "${APPDIR}/usr/share/applications/gitget.desktop"
+install -Dm644 /dev/null                      "${APPDIR}/gitget.png"
 
 cat > "${APPDIR}/AppRun" <<'EOF'
 #!/usr/bin/env bash
 SELF="$(readlink -f "$0")"
 HERE="$(dirname "${SELF}")"
 export PATH="${HERE}/usr/bin:${PATH}"
-exec "${HERE}/usr/bin/gh-desktop" "$@"
+exec "${HERE}/usr/bin/gitget" "$@"
 EOF
 chmod +x "${APPDIR}/AppRun"
 
-OUTPUT="gh-desktop-${VERSION}-x86_64.AppImage"
+OUTPUT="gitget-${VERSION}-x86_64.AppImage"
 ARCH=x86_64 appimagetool "${APPDIR}" "${OUTPUT}"
 echo "Built: ${OUTPUT}"
