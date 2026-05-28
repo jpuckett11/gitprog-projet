@@ -1,0 +1,33 @@
+# Reverse-proxy + TLS termination for gh-desktop-receiver.
+#
+# Replace receiver.obsidianwatch.org with your hostname. Caddy will provision a
+# Let's Encrypt cert automatically as long as ports 80/443 are reachable.
+
+receiver.obsidianwatch.org {
+    encode zstd gzip
+
+    # GitHub webhook target — strict to /webhook only on the public path
+    handle /webhook {
+        reverse_proxy 127.0.0.1:8765
+    }
+
+    # WebSocket + replay endpoints for desktop clients
+    handle /events* {
+        reverse_proxy 127.0.0.1:8765
+    }
+
+    handle /healthz {
+        reverse_proxy 127.0.0.1:8765
+    }
+
+    # Deny everything else
+    handle {
+        respond "Not found" 404
+    }
+
+    # Log access for auditability
+    log {
+        output file /var/log/caddy/gh-desktop-receiver.access.log
+        format json
+    }
+}
