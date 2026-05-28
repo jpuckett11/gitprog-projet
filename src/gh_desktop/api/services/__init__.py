@@ -1,6 +1,7 @@
 """High-level service wrappers built on top of RestClient / GraphQLClient."""
 
 from gh_desktop.api.services.actions import ActionsService
+from gh_desktop.api.services.contents import ContentsService
 from gh_desktop.api.services.discussions import DiscussionsService
 from gh_desktop.api.services.issues import IssuesService
 from gh_desktop.api.services.members import MembersService
@@ -12,6 +13,7 @@ from gh_desktop.api.services.webhooks import WebhooksService
 
 __all__ = [
     "ActionsService",
+    "ContentsService",
     "DiscussionsService",
     "IssuesService",
     "MembersService",

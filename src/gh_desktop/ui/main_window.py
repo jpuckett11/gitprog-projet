@@ -18,6 +18,7 @@ from gh_desktop.auth import storage
 from gh_desktop.config import Settings
 from gh_desktop.ui.login import LoginPane
 from gh_desktop.ui.modes.admin import AdminMode
+from gh_desktop.ui.modes.contents import ContentsMode
 from gh_desktop.ui.modes.investigation import InvestigationMode
 from gh_desktop.ui.modes.triage import TriageMode
 from gh_desktop.ui.repo_picker import RepoPicker
@@ -140,9 +141,11 @@ class MainWindow(QMainWindow):
         self._triage = TriageMode(ws)
         self._investigation = InvestigationMode(ws)
         self._admin = AdminMode(ws)
+        self._contents = ContentsMode(ws)
         self._tabs.addTab(self._triage, "Triage")
         self._tabs.addTab(self._investigation, "Investigation")
         self._tabs.addTab(self._admin, "Admin")
+        self._tabs.addTab(self._contents, "Contents")
         splitter.addWidget(self._tabs)
 
         splitter.setStretchFactor(0, 1)
@@ -158,9 +161,10 @@ class MainWindow(QMainWindow):
     def _on_scope_change(self, scope: str) -> None:
         if not scope:
             return
-        # Investigation needs a repo (owner/repo); Admin accepts both.
+        # Investigation + Contents need a repo (owner/repo); Admin accepts both.
         if "/" in scope and not scope.startswith("@"):
             self._investigation.set_scope(scope)
+            self._contents.set_scope(scope)
         self._admin.set_scope(scope)
 
     def closeEvent(self, event) -> None:  # noqa: N802 (Qt API)
