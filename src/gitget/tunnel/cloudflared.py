@@ -1,12 +1,3 @@
-"""Cloudflare Tunnel via the `cloudflared` quick-tunnel mode.
-
-We spawn `cloudflared tunnel --url http://127.0.0.1:<port>` as a child process.
-cloudflared prints the public trycloudflare.com URL to stderr; we parse it,
-expose it as a Qt signal, and keep the process alive (restart on crash).
-
-No CF account required for quick-tunnels — they're ephemeral and random.
-For production, swap this out for a named tunnel via `cloudflared tunnel run`.
-"""
 
 from __future__ import annotations
 
@@ -25,8 +16,8 @@ _URL_RE = re.compile(r"https://[a-zA-Z0-9.\-]+\.trycloudflare\.com")
 
 
 class CloudflareTunnel(QObject):
-    url_ready = Signal(str)          # public URL string
-    state_changed = Signal(str)      # "starting" | "running" | "exited" | "error:<msg>"
+    url_ready = Signal(str)
+    state_changed = Signal(str)
 
     def __init__(
         self,
@@ -68,7 +59,6 @@ class CloudflareTunnel(QObject):
     def current_url(self) -> str | None:
         return self._current_url
 
-    # ---------- internal ----------
 
     def _supervise(self) -> None:
         backoff = 1.0

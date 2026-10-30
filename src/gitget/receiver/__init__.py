@@ -1,4 +1,3 @@
-"""Webhook receiver: FastAPI app that ingests GitHub webhooks and fans out via WS."""
 
 from gitget.receiver.bus import EventBus
 from gitget.receiver.server import ReceiverSettings, build_app

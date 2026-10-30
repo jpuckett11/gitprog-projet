@@ -1,7 +1,3 @@
-"""Async GraphQL client for GitHub.
-
-GitHub Discussions, Projects v2, and many newer features are GraphQL-only.
-"""
 
 from __future__ import annotations
 
@@ -73,7 +69,7 @@ class GraphQLClient:
     ) -> dict[str, Any]:
         token = self._token_provider()
         if hasattr(token, "__await__"):
-            token = await token  # type: ignore[misc]
+            token = await token
 
         headers = {
             "Accept": ACCEPT,
@@ -94,7 +90,6 @@ class GraphQLClient:
             if r.status_code == 200:
                 data = r.json()
                 if "errors" in data:
-                    # GitHub returns 200 even on GraphQL errors; surface them
                     raise GitHubAPIError(200, data["errors"], self._settings.graphql_url)
                 return data["data"]
 

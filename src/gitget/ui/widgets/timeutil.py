@@ -1,4 +1,3 @@
-"""Relative timestamp formatting."""
 
 from __future__ import annotations
 
@@ -6,7 +5,6 @@ from datetime import UTC, datetime
 
 
 def humanize(ts: datetime | str | None) -> str:
-    """Return a short relative string like '3m', '2h', '5d', '2025-04-01'."""
     if ts is None:
         return ""
     if isinstance(ts, str):

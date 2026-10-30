@@ -1,4 +1,3 @@
-"""CLI entry point: `gitget`."""
 
 from __future__ import annotations
 

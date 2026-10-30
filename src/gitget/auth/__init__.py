@@ -1,4 +1,3 @@
-"""Authentication: OAuth user flows, GitHub App JWT, and secret storage."""
 
 from gitget.auth import github_app, oauth, storage
 from gitget.auth.github_app import (

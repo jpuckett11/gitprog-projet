@@ -1,4 +1,3 @@
-"""Settings dialog: endpoints, polling intervals, webhook mode, App config."""
 
 from __future__ import annotations
 
@@ -27,7 +26,6 @@ class SettingsDialog(QDialog):
 
         root = QVBoxLayout(self)
 
-        # ----- Endpoints -----
         endpoints = QGroupBox("GitHub endpoints (override for Enterprise Server)")
         ef = QFormLayout(endpoints)
         self._api_base = QLineEdit(settings.api_base)
@@ -36,7 +34,6 @@ class SettingsDialog(QDialog):
         ef.addRow("GraphQL URL", self._graphql_url)
         root.addWidget(endpoints)
 
-        # ----- OAuth / App -----
         creds = QGroupBox("OAuth / GitHub App")
         cf = QFormLayout(creds)
         self._client_id = QLineEdit(settings.oauth_client_id or "")
@@ -47,7 +44,6 @@ class SettingsDialog(QDialog):
         cf.addRow("GitHub App slug", self._app_slug)
         root.addWidget(creds)
 
-        # ----- Polling -----
         poll = QGroupBox("Polling intervals (seconds)")
         pf = QFormLayout(poll)
         self._poll_notifications = self._make_int_spin(settings.poll_notifications_seconds, 15, 3600)
@@ -60,7 +56,6 @@ class SettingsDialog(QDialog):
         pf.addRow("Actions", self._poll_actions)
         root.addWidget(poll)
 
-        # ----- Webhooks -----
         webhook = QGroupBox("Webhook delivery")
         wf = QFormLayout(webhook)
         self._webhook_mode = QComboBox()

@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-# Build an AppImage from the PyInstaller output.
-#
-# Requires: appimagetool (https://github.com/AppImage/AppImageKit/releases).
-# Usage: ./packaging/build-appimage.sh [VERSION]
 
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -22,7 +18,6 @@ install -Dm755 dist/gitget                "${APPDIR}/usr/bin/gitget"
 install -Dm644 packaging/gitget.desktop   "${APPDIR}/gitget.desktop"
 install -Dm644 packaging/gitget.desktop   "${APPDIR}/usr/share/applications/gitget.desktop"
 
-# Render PNGs if they don't exist (idempotent)
 if [[ ! -f packaging/icons/gitget-256.png ]]; then
     uv run python packaging/render_pngs.py
 fi

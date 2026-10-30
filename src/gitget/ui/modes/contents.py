@@ -1,13 +1,3 @@
-"""Contents mode — browse repository files.
-
-Layout:
-  Toolbar: scope (owner/repo), branch combo, refresh
-  Left:    Lazy-loaded tree (folders expand on click via /contents)
-  Right:   File viewer — markdown for .md, plain text for code, hex for binary,
-           inline image for png/jpg/gif/svg.
-
-Files larger than MAX_FILE_BYTES are not loaded (link-out only).
-"""
 
 from __future__ import annotations
 
@@ -35,7 +25,7 @@ from gitget.api.services.contents import ContentEntry, FileBlob
 from gitget.ui.widgets import MarkdownView, StatusBanner, run_async
 from gitget.workspace import Workspace
 
-MAX_FILE_BYTES = 1_500_000  # ~1.5 MB; bigger files render too slowly in QTextEdit
+MAX_FILE_BYTES = 1_500_000
 
 _TEXT_EXTS = {
     "txt", "md", "rst", "py", "js", "ts", "tsx", "jsx", "go", "rs", "c", "h", "cpp",
@@ -59,14 +49,13 @@ class ContentsMode(QWidget):
         super().__init__(parent)
         self._workspace = workspace
         self._svc = ContentsService(workspace.rest)
-        self._scope: tuple[str, str] | None = None  # (owner, repo)
+        self._scope: tuple[str, str] | None = None
         self._branch: str = ""
-        self._workers: list[Any] = []  # keep refs
+        self._workers: list[Any] = []
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
 
-        # toolbar
         toolbar = QHBoxLayout()
         toolbar.setContentsMargins(8, 4, 8, 4)
         toolbar.addWidget(QLabel("Repo:"))
@@ -89,7 +78,6 @@ class ContentsMode(QWidget):
         self._banner = StatusBanner()
         outer.addWidget(self._banner)
 
-        # tree + viewer
         splitter = QSplitter(Qt.Orientation.Horizontal)
 
         self._tree = QTreeWidget()
@@ -98,7 +86,6 @@ class ContentsMode(QWidget):
         self._tree.itemActivated.connect(self._on_activate)
         splitter.addWidget(self._tree)
 
-        # right side: stacked viewer (text / markdown / image / binary)
         self._stack = QStackedWidget()
         self._md_view = MarkdownView()
         self._text_view = QPlainTextEdit()
@@ -111,10 +98,10 @@ class ContentsMode(QWidget):
         self._info.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._info.setStyleSheet("color: #888;")
 
-        self._stack.addWidget(self._info)         # 0 — empty/info
-        self._stack.addWidget(self._md_view)      # 1 — markdown
-        self._stack.addWidget(self._text_view)    # 2 — text/code
-        self._stack.addWidget(self._image_label)  # 3 — image
+        self._stack.addWidget(self._info)
+        self._stack.addWidget(self._md_view)
+        self._stack.addWidget(self._text_view)
+        self._stack.addWidget(self._image_label)
         splitter.addWidget(self._stack)
 
         splitter.setStretchFactor(0, 2)
@@ -122,7 +109,6 @@ class ContentsMode(QWidget):
         splitter.setSizes([360, 800])
         outer.addWidget(splitter, 1)
 
-    # ---------- scope ----------
 
     def set_scope(self, owner_repo: str) -> None:
         if "/" not in owner_repo:
@@ -147,7 +133,6 @@ class ContentsMode(QWidget):
         self._tree.clear()
         self._load_root()
 
-    # ---------- loaders ----------
 
     def _load_branches_and_root(self) -> None:
         if self._scope is None:
@@ -171,7 +156,6 @@ class ContentsMode(QWidget):
                 self._branch_combo.setCurrentText(self._branch)
                 self._load_root()
             else:
-                # No branches means the repo has no commits yet.
                 self._branch = ""
                 self._tree.clear()
                 self._banner.show_info("Repository is empty — no branches yet.")
@@ -209,13 +193,11 @@ class ContentsMode(QWidget):
         )
 
     def _on_expand(self, item: QTreeWidgetItem) -> None:
-        # Lazy-load directory children on first expand.
         data: ContentEntry | None = item.data(0, Qt.ItemDataRole.UserRole)
         if data is None or data.type != "dir":
             return
         if item.childCount() and item.child(0).text(0) != "(loading…)":
-            return  # already loaded
-        # replace any placeholder
+            return
         while item.childCount():
             item.removeChild(item.child(0))
         placeholder = QTreeWidgetItem(item, ["(loading…)", ""])
@@ -276,7 +258,6 @@ class ContentsMode(QWidget):
             run_async(self, fetch, on_success=on_done, on_failure=self._on_error)
         )
 
-    # ---------- rendering ----------
 
     def _render_blob(self, entry: ContentEntry, blob: FileBlob) -> None:
         ext = _ext(entry.name)
@@ -302,7 +283,6 @@ class ContentsMode(QWidget):
             self._stack.setCurrentWidget(self._text_view)
             return
 
-        # binary fallback — show a hex preview of the first 1024 bytes
         preview = _hex_preview(raw[:1024])
         self._text_view.setPlainText(
             f"Binary file ({len(raw)} bytes). First 1 KB:\n\n{preview}"
@@ -316,13 +296,11 @@ class ContentsMode(QWidget):
         )
         self._stack.setCurrentWidget(self._info)
         if entry.html_url:
-            QDesktopServices.openUrl  # noqa: B018  (UI hint — open via menu/click)
+            QDesktopServices.openUrl
 
     def _on_error(self, exc: Exception) -> None:
         self._banner.show_error(f"Contents: {exc}")
 
-
-# ---------- helpers ----------
 
 def _make_item(entry: ContentEntry) -> QTreeWidgetItem:
     icon = "📁 " if entry.type == "dir" else ""
@@ -331,23 +309,20 @@ def _make_item(entry: ContentEntry) -> QTreeWidgetItem:
     item = QTreeWidgetItem([label, size])
     item.setData(0, Qt.ItemDataRole.UserRole, entry)
     if entry.type == "dir":
-        # placeholder child so the chevron renders before we lazy-load
         placeholder = QTreeWidgetItem(item, ["(loading…)", ""])
         placeholder.setFlags(Qt.ItemFlag.NoItemFlags)
     return item
 
 
 def _sorted(entries: list[ContentEntry]) -> list[ContentEntry]:
-    # Dirs first (alpha), then files (alpha) — common file-explorer convention
     return sorted(entries, key=lambda e: (e.type != "dir", e.name.lower()))
 
 
 def _looks_textual(b: bytes) -> bool:
     if not b:
         return True
-    if b[:3] == b"\xef\xbb\xbf":  # UTF-8 BOM
+    if b[:3] == b"\xef\xbb\xbf":
         return True
-    # Heuristic: >95% printable / common whitespace
     sample = b[:4096]
     if b"\x00" in sample:
         return False

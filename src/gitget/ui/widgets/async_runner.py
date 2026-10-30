@@ -1,11 +1,3 @@
-"""Run async coroutines from Qt code without blocking the GUI.
-
-Each `run_async` call spins up a short-lived QThread that drives the coroutine in
-its own asyncio event loop. The success/failure signals are delivered back on
-the main thread.
-
-For long-lived async work (like the polling engine), use PollingEngine instead.
-"""
 
 from __future__ import annotations
 
@@ -38,12 +30,6 @@ def run_async(
     on_success=None,
     on_failure=None,
 ) -> _AsyncWorker:
-    """Run `coro_factory()` (a 0-arg callable returning a coroutine) in a thread.
-
-    Returns the worker so the caller can hold a ref (Qt will GC it otherwise).
-    Pass a *factory* (zero-arg callable) — not an awaitable — so the coroutine
-    is constructed inside the worker thread.
-    """
     worker = _AsyncWorker(coro_factory, parent)
     if on_success is not None:
         worker.success.connect(on_success)

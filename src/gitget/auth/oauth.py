@@ -1,12 +1,3 @@
-"""User-facing OAuth flows.
-
-Two flows supported:
-  - Device flow: for headless/CLI bootstrap. User pastes a code at github.com/login/device.
-  - Web flow (loopback): GUI app opens browser to /authorize, captures the callback on
-    http://127.0.0.1:<random-port>/callback. PKCE used; no client_secret needed for the
-    PKCE path if the OAuth app is configured as "public", otherwise client_secret is loaded
-    from the keyring.
-"""
 
 from __future__ import annotations
 
@@ -54,15 +45,7 @@ def _pick_free_port() -> int:
         return s.getsockname()[1]
 
 
-# ---------- Device flow ----------
-
-
 async def device_flow(settings: Settings, scopes: list[str]) -> TokenResponse:
-    """Run the device flow. Yields a verification URL/code to print; polls until granted.
-
-    Caller is responsible for displaying user_code and verification_uri to the user
-    (we print to stdout here for the CLI bootstrap case).
-    """
     if not settings.oauth_client_id:
         raise OAuthError("oauth_client_id is not configured")
 
@@ -107,17 +90,12 @@ async def device_flow(settings: Settings, scopes: list[str]) -> TokenResponse:
                 continue
             if err in {"expired_token", "access_denied"}:
                 raise OAuthError(f"device flow failed: {err}")
-            # unknown error
             raise OAuthError(f"device flow error: {data}")
 
         raise OAuthError("device flow timed out")
 
 
-# ---------- Web (loopback) flow with PKCE ----------
-
-
 class _CallbackHandler(http.server.BaseHTTPRequestHandler):
-    """One-shot handler that captures the OAuth callback query params."""
 
     result: ClassVar[dict[str, str]] = {}
 
@@ -140,11 +118,10 @@ class _CallbackHandler(http.server.BaseHTTPRequestHandler):
         )
 
     def log_message(self, format: str, *args: Any) -> None:
-        pass  # silence default request logging
+        pass
 
 
 async def web_flow(settings: Settings, scopes: list[str]) -> TokenResponse:
-    """Open browser to /authorize, capture callback, exchange code for token."""
     if not settings.oauth_client_id:
         raise OAuthError("oauth_client_id is not configured")
 
@@ -170,7 +147,6 @@ async def web_flow(settings: Settings, scopes: list[str]) -> TokenResponse:
         auth_url = f"{settings.oauth_authorize_url}?{urllib.parse.urlencode(params)}"
         webbrowser.open(auth_url, new=2)
 
-        # wait up to 5 minutes for the browser callback
         for _ in range(600):
             if "code" in _CallbackHandler.result or "error" in _CallbackHandler.result:
                 break

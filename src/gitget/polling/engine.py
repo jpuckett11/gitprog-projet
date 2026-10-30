@@ -1,19 +1,3 @@
-"""Background polling engine.
-
-A Qt-friendly engine that runs an asyncio event loop in a worker thread and emits
-Qt signals when polled resources change. Each registered resource has its own
-interval and a callable that fetches it (the callable is responsible for using
-ETag-aware caching so 304s don't burn rate limit).
-
-Usage:
-
-    engine = PollingEngine()
-    engine.add_resource("notifications", interval=60, fetch=client.list_notifications)
-    engine.changed.connect(self.on_notifications_changed)
-    engine.start()
-    ...
-    engine.stop()
-"""
 
 from __future__ import annotations
 
@@ -42,11 +26,8 @@ class _Resource:
 
 
 class PollingEngine(QObject):
-    """QObject so it can emit Qt signals on the main thread."""
 
-    # emitted as (resource_name, new_value)
     changed = Signal(str, object)
-    # emitted as (resource_name, exception)
     error = Signal(str, object)
 
     def __init__(self, parent: QObject | None = None) -> None:
@@ -82,7 +63,6 @@ class PollingEngine(QObject):
         self._stop_event = None
 
     def trigger_now(self, name: str) -> None:
-        """Force an immediate fetch of one resource (no-op if not yet running)."""
         if self._loop is None:
             return
         res = self._resources.get(name)
@@ -90,7 +70,6 @@ class PollingEngine(QObject):
             return
         asyncio.run_coroutine_threadsafe(self._fetch_once(res), self._loop)
 
-    # ---------- internal ----------
 
     def _run(self) -> None:
         self._loop = asyncio.new_event_loop()
@@ -112,7 +91,6 @@ class PollingEngine(QObject):
                 await t
 
     async def _poll_loop(self, res: _Resource) -> None:
-        # initial fetch on startup
         await self._fetch_once(res)
         while True:
             try:

@@ -1,11 +1,3 @@
-"""Async REST client for GitHub.
-
-Features:
-  - ETag-based conditional requests via SQLite cache (cuts rate-limit usage)
-  - Automatic retry on 429/5xx with Retry-After + backoff
-  - Pagination helper that yields items across pages
-  - Pluggable auth: either user OAuth token or GitHub App installation token
-"""
 
 from __future__ import annotations
 
@@ -39,7 +31,6 @@ TokenProvider = Callable[[], "str | None"] | Callable[[], "Any"]
 
 
 class RestClient:
-    """Async HTTP client for GitHub REST API."""
 
     def __init__(
         self,
@@ -51,15 +42,11 @@ class RestClient:
         self._settings = settings
         self._token_provider = token_provider
         self._timeout = timeout
-        # httpx.AsyncClient binds to whichever event loop first uses it, so when
-        # the polling engine's loop and a worker-thread loop share one client
-        # the second loop silently fails. Maintain one client per loop.
         self._clients: dict[int, tuple[asyncio.AbstractEventLoop, httpx.AsyncClient]] = {}
         self.rate_limit = ratelimit.RateLimitState()
 
     def _client(self) -> httpx.AsyncClient:
         loop = asyncio.get_running_loop()
-        # Purge entries whose loop has closed
         for key in list(self._clients):
             stored_loop, _ = self._clients[key]
             if stored_loop.is_closed():
@@ -88,12 +75,11 @@ class RestClient:
     async def __aexit__(self, *exc: Any) -> None:
         await self.aclose()
 
-    # ---------- core request ----------
 
     async def _headers(self, extra: Mapping[str, str] | None = None) -> dict[str, str]:
         token = self._token_provider()
         if hasattr(token, "__await__"):
-            token = await token  # type: ignore[misc]
+            token = await token
         h = {
             "Accept": ACCEPT,
             "X-GitHub-Api-Version": API_VERSION,
@@ -153,7 +139,6 @@ class RestClient:
                 await ratelimit.backoff_sleep(attempt)
                 continue
 
-            # non-retryable error
             body: Any
             try:
                 body = r.json()
@@ -163,7 +148,6 @@ class RestClient:
 
         raise GitHubAPIError(0, "max attempts exceeded", path)
 
-    # ---------- convenience wrappers ----------
 
     async def get(self, path: str, **kw: Any) -> Any:
         return await self.request("GET", path, **kw)
@@ -188,12 +172,6 @@ class RestClient:
         per_page: int = 100,
         max_pages: int | None = None,
     ) -> AsyncIterator[Any]:
-        """Yield items across paginated REST endpoints.
-
-        Uses page= numeric pagination (most reliable across endpoints). For
-        endpoints that return a wrapper object (e.g. /actions/runs), callers
-        should iterate at the wrapper level instead of using this helper.
-        """
         page = 1
         while True:
             p = dict(params or {})
@@ -201,7 +179,6 @@ class RestClient:
             p["page"] = page
             body = await self.request("GET", path, params=p)
             if not isinstance(body, list):
-                # Endpoint returned a wrapper — yield it and stop
                 yield body
                 return
             if not body:

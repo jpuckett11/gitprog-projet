@@ -1,11 +1,3 @@
-"""Investigation mode — case management via Discussions.
-
-Layout:
-  Repo selector + new-case button (top)
-  Left:   Discussion (case) list
-  Center: Thread body + comments + reply box
-  Right:  Linked evidence (Issues with a configurable label, default 'evidence')
-"""
 
 from __future__ import annotations
 
@@ -37,7 +29,7 @@ class InvestigationMode(QWidget):
     def __init__(self, workspace: Workspace, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._workspace = workspace
-        self._scope: tuple[str, str] | None = None  # (owner, repo)
+        self._scope: tuple[str, str] | None = None
         self._discussions: list[Discussion] = []
         self._current: dict[str, Any] | None = None
         self._worker = None
@@ -48,7 +40,6 @@ class InvestigationMode(QWidget):
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
 
-        # toolbar
         toolbar = QHBoxLayout()
         toolbar.setContentsMargins(8, 4, 8, 4)
         toolbar.addWidget(QLabel("Repo:"))
@@ -70,10 +61,8 @@ class InvestigationMode(QWidget):
         self._banner = StatusBanner()
         outer.addWidget(self._banner)
 
-        # three-pane
         splitter = QSplitter(Qt.Orientation.Horizontal)
 
-        # left: case list
         left = QWidget()
         ll = QVBoxLayout(left)
         ll.setContentsMargins(0, 0, 0, 0)
@@ -83,7 +72,6 @@ class InvestigationMode(QWidget):
         ll.addWidget(self._list, 1)
         splitter.addWidget(left)
 
-        # center: thread
         center = QWidget()
         cl = QVBoxLayout(center)
         cl.setContentsMargins(8, 8, 8, 8)
@@ -97,7 +85,6 @@ class InvestigationMode(QWidget):
         self._thread_body = MarkdownView()
         cl.addWidget(self._thread_body, 1)
 
-        # reply box
         cl.addWidget(QLabel("Reply"))
         self._reply_edit = MarkdownEditor(
             preview_visible=False,
@@ -116,7 +103,6 @@ class InvestigationMode(QWidget):
         cl.addLayout(reply_row)
         splitter.addWidget(center)
 
-        # right: linked evidence
         right = QWidget()
         rl = QVBoxLayout(right)
         rl.setContentsMargins(8, 8, 8, 8)
@@ -132,10 +118,8 @@ class InvestigationMode(QWidget):
         splitter.setSizes([280, 700, 320])
         outer.addWidget(splitter, 1)
 
-    # ---------- scope changes ----------
 
     def set_scope(self, owner_repo: str) -> None:
-        """Called by MainWindow when the repo picker selection changes."""
         if "/" not in owner_repo:
             return
         self._repo_input.setText(owner_repo)
@@ -177,7 +161,6 @@ class InvestigationMode(QWidget):
 
         run_async(self, fetch, on_success=self._set_evidence, on_failure=self._on_error)
 
-    # ---------- data callbacks ----------
 
     def _set_discussions(self, items: list[Discussion]) -> None:
         self._discussions = items
@@ -205,7 +188,6 @@ class InvestigationMode(QWidget):
     def _on_error(self, exc: Exception) -> None:
         self._banner.show_error(f"Couldn't load: {exc}")
 
-    # ---------- selection ----------
 
     def _on_select(self) -> None:
         items = self._list.selectedItems()
@@ -241,7 +223,6 @@ class InvestigationMode(QWidget):
 
         self._worker = run_async(self, fetch, on_success=on_done, on_failure=self._on_error)
 
-    # ---------- actions ----------
 
     def _open_current(self) -> None:
         if self._current is None:
@@ -274,7 +255,6 @@ class InvestigationMode(QWidget):
         def on_done(_: object) -> None:
             self._reply_edit.clear()
             self._banner.show_info("Reply posted.")
-            # Refresh the thread to show the new comment
             items = self._list.selectedItems()
             if items:
                 d: Discussion = items[0].data(Qt.ItemDataRole.UserRole)

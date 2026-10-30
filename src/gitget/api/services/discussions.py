@@ -1,4 +1,3 @@
-"""GitHub Discussions (GraphQL-only)."""
 
 from __future__ import annotations
 
@@ -94,7 +93,6 @@ class DiscussionsService:
         return out
 
     async def get(self, owner: str, name: str, number: int) -> dict[str, Any]:
-        """Returns the raw GraphQL discussion node including comments."""
         data = await self._graphql.execute(
             _GET_QUERY, {"owner": owner, "name": name, "number": number}
         )

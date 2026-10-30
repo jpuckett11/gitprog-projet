@@ -1,4 +1,3 @@
-"""Busy and error banners — dismissable inline status messages."""
 
 from __future__ import annotations
 
@@ -7,7 +6,6 @@ from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QWidget
 
 
 class StatusBanner(QWidget):
-    """A thin horizontal banner with an icon hint, message, and dismiss button."""
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)

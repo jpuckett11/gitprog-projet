@@ -1,4 +1,3 @@
-"""Unit tests for API service classes using pytest-httpx."""
 
 from __future__ import annotations
 
@@ -22,8 +21,6 @@ from gitget.config import Settings
 def client() -> RestClient:
     return RestClient(Settings(), token_provider=lambda: "test-token")
 
-
-# ---------- Notifications ----------
 
 @pytest.mark.asyncio
 async def test_notifications_list(httpx_mock: HTTPXMock, client: RestClient) -> None:
@@ -74,8 +71,6 @@ async def test_notifications_mark_all_read(httpx_mock: HTTPXMock, client: RestCl
     await NotificationsService(client).mark_all_read()
 
 
-# ---------- Repos ----------
-
 @pytest.mark.asyncio
 async def test_repos_list_for_user(httpx_mock: HTTPXMock, client: RestClient) -> None:
     httpx_mock.add_response(
@@ -94,8 +89,6 @@ async def test_repos_list_for_user(httpx_mock: HTTPXMock, client: RestClient) ->
     assert out[0].full_name == "u/alpha"
 
 
-# ---------- Orgs ----------
-
 @pytest.mark.asyncio
 async def test_orgs_list(httpx_mock: HTTPXMock, client: RestClient) -> None:
     httpx_mock.add_response(
@@ -105,8 +98,6 @@ async def test_orgs_list(httpx_mock: HTTPXMock, client: RestClient) -> None:
     out = await OrgsService(client).list_for_authenticated_user()
     assert out[0].login == "acme"
 
-
-# ---------- Issues ----------
 
 @pytest.mark.asyncio
 async def test_issues_list_filters_prs(httpx_mock: HTTPXMock, client: RestClient) -> None:
@@ -126,7 +117,7 @@ async def test_issues_list_filters_prs(httpx_mock: HTTPXMock, client: RestClient
                 "created_at": "2025-05-01T00:00:00Z",
                 "updated_at": "2025-05-01T00:00:00Z",
                 "html_url": "h",
-                "pull_request": {"url": "x"},  # marks this as a PR
+                "pull_request": {"url": "x"},
             },
         ],
     )
@@ -134,8 +125,6 @@ async def test_issues_list_filters_prs(httpx_mock: HTTPXMock, client: RestClient
     assert len(out) == 1
     assert out[0].title == "issue"
 
-
-# ---------- Secrets ----------
 
 @pytest.mark.asyncio
 async def test_secrets_list_repo(httpx_mock: HTTPXMock, client: RestClient) -> None:
@@ -158,8 +147,6 @@ async def test_secrets_put_repo(httpx_mock: HTTPXMock, client: RestClient) -> No
         "o", "r", "X", encrypted_value="abc", key_id="k1"
     )
 
-
-# ---------- Webhooks ----------
 
 @pytest.mark.asyncio
 async def test_webhooks_list_repo(httpx_mock: HTTPXMock, client: RestClient) -> None:
@@ -184,8 +171,6 @@ async def test_webhooks_create_repo(httpx_mock: HTTPXMock, client: RestClient) -
     assert out["id"] == 42
 
 
-# ---------- Actions ----------
-
 @pytest.mark.asyncio
 async def test_actions_list_runs(httpx_mock: HTTPXMock, client: RestClient) -> None:
     httpx_mock.add_response(
@@ -203,8 +188,6 @@ async def test_actions_list_runs(httpx_mock: HTTPXMock, client: RestClient) -> N
     assert len(out) == 1
     assert out[0]["name"] == "CI"
 
-
-# ---------- Rate-limit handling ----------
 
 @pytest.mark.asyncio
 async def test_rest_retries_on_5xx(httpx_mock: HTTPXMock, client: RestClient) -> None:

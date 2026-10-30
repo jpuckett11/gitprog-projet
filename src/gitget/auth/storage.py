@@ -1,10 +1,3 @@
-"""Secret storage via libsecret (through python-keyring).
-
-Stores:
-  - user OAuth access token + refresh token (per host)
-  - GitHub App private key (PEM)
-  - cached installation tokens (with expiry encoded in value)
-"""
 
 from __future__ import annotations
 
@@ -28,13 +21,13 @@ _SUBSCRIBER_TOKEN_KEY = "receiver-subscriber-token"
 @dataclass(slots=True)
 class StoredToken:
     value: str
-    expires_at: float | None = None  # epoch seconds; None means no expiry
+    expires_at: float | None = None
 
     @property
     def expired(self) -> bool:
         if self.expires_at is None:
             return False
-        return time.time() >= self.expires_at - 30  # 30s safety margin
+        return time.time() >= self.expires_at - 30
 
 
 def _set(name: str, value: str) -> None:

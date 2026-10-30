@@ -1,4 +1,3 @@
-"""Webhook endpoints (repo + org)."""
 
 from __future__ import annotations
 

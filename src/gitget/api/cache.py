@@ -1,9 +1,3 @@
-"""ETag-aware response cache.
-
-GitHub returns ETag on most GET responses. Sending If-None-Match returns 304 (no
-content) without consuming rate-limit budget. We persist ETag + body in SQLite so
-polling stays cheap across app restarts.
-"""
 
 from __future__ import annotations
 

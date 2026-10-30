@@ -1,8 +1,3 @@
-"""GitGet dark-purple theme.
-
-QPalette covers the structural Qt widget colors; QSS layers on top for
-finer-grained control (tab bars, scrollbars, hover states, etc.).
-"""
 
 from __future__ import annotations
 
@@ -12,7 +7,6 @@ from PySide6.QtWidgets import QApplication
 APP_NAME = "GitGet"
 APP_TAGLINE = "by Obsidian Watch Group"
 
-# Dark purple palette
 BG = "#16101e"
 SURFACE = "#1f1828"
 SURFACE_ALT = "#251a30"
@@ -52,7 +46,6 @@ def apply_palette(app: QApplication) -> None:
     pal.setColor(QPalette.ColorRole.PlaceholderText, _qc(TEXT_MUTED))
     pal.setColor(QPalette.ColorRole.Mid, _qc(BORDER))
 
-    # Disabled states
     for group in (QPalette.ColorGroup.Disabled,):
         pal.setColor(group, QPalette.ColorRole.WindowText, _qc("#54487a"))
         pal.setColor(group, QPalette.ColorRole.Text, _qc("#54487a"))
@@ -344,12 +337,10 @@ QProgressBar::chunk {{
 
 
 def apply_theme(app: QApplication) -> None:
-    """Apply full GitGet theme: palette + QSS."""
     apply_palette(app)
     app.setStyleSheet(STYLESHEET)
 
 
-# Convenience access from non-Qt code (banners etc.)
 __all__ = [
     "ACCENT",
     "ACCENT_DARK",

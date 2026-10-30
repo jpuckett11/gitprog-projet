@@ -1,9 +1,3 @@
-"""Async fanout bus.
-
-When a webhook arrives we push the event to all currently connected WebSocket
-subscribers. Each subscriber has its own asyncio.Queue so a slow client doesn't
-block the receiver. Bounded queue size; if the queue is full we drop the oldest.
-"""
 
 from __future__ import annotations
 

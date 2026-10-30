@@ -1,4 +1,3 @@
-"""High-level service wrappers built on top of RestClient / GraphQLClient."""
 
 from gitget.api.services.actions import ActionsService
 from gitget.api.services.contents import ContentsService

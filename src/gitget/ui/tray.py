@@ -1,10 +1,3 @@
-"""System tray icon with unread badge and quick actions.
-
-Sits in the user's notification area. Left-click toggles main window visibility;
-right-click opens menu with: Show/Hide, Refresh notifications, Settings, Quit.
-
-The icon is overlaid with the unread-notification count when > 0.
-"""
 
 from __future__ import annotations
 
@@ -22,7 +15,6 @@ from gitget.assets import icon_path
 
 
 def _make_badged_icon(base_icon: QIcon, count: int) -> QIcon:
-    """Return icon with a small red badge with `count` overlaid (no badge if 0)."""
     size = 64
     pix = base_icon.pixmap(size, size)
     if pix.isNull():
@@ -33,7 +25,6 @@ def _make_badged_icon(base_icon: QIcon, count: int) -> QIcon:
     painter = QPainter(pix)
     painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
-    # red circle background
     diameter = 28
     x = size - diameter - 2
     y = 2
@@ -41,7 +32,6 @@ def _make_badged_icon(base_icon: QIcon, count: int) -> QIcon:
     painter.setPen(QColor("#16101e"))
     painter.drawEllipse(x, y, diameter, diameter)
 
-    # count text
     label = "99+" if count > 99 else str(count)
     font = QFont()
     font.setBold(True)

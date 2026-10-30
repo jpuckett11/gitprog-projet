@@ -1,13 +1,3 @@
-"""WebSocket bridge: desktop GUI ↔ webhook receiver.
-
-Runs a background asyncio loop in a worker thread that maintains a WebSocket to
-the receiver's /events endpoint. Emits Qt signals on the main thread when:
-  - an event arrives
-  - connection state changes (connected / reconnecting / failed)
-
-On startup, replays anything missed via /events/recent so we don't drop deliveries
-that arrived while the GUI was offline.
-"""
 
 from __future__ import annotations
 
@@ -25,8 +15,8 @@ log = structlog.get_logger(__name__)
 
 
 class WebhookBridge(QObject):
-    event = Signal(object)          # one webhook event (dict)
-    state_changed = Signal(str)     # "connecting" | "connected" | "reconnecting" | "stopped" | "error:<msg>"
+    event = Signal(object)
+    state_changed = Signal(str)
 
     def __init__(
         self,
@@ -43,7 +33,6 @@ class WebhookBridge(QObject):
         self._stop_event: asyncio.Event | None = None
         self._last_id: int = 0
 
-    # ---------- lifecycle ----------
 
     def start(self) -> None:
         if self._thread is not None:
@@ -61,7 +50,6 @@ class WebhookBridge(QObject):
         self._loop = None
         self._stop_event = None
 
-    # ---------- internal ----------
 
     def _run(self) -> None:
         self._loop = asyncio.new_event_loop()
@@ -99,7 +87,7 @@ class WebhookBridge(QObject):
             self.state_changed.emit("reconnecting")
             try:
                 await asyncio.wait_for(self._stop_event.wait(), timeout=backoff)
-                return  # stop signalled during backoff
+                return
             except TimeoutError:
                 pass
             backoff = min(backoff * 2, 30.0)

@@ -1,4 +1,3 @@
-"""Pull Request endpoints: list, get, files w/ patches, reviews, merge."""
 
 from __future__ import annotations
 
@@ -35,7 +34,6 @@ class PullsService:
     async def list_files(
         self, owner: str, repo: str, number: int, *, max_pages: int = 5
     ) -> list[dict[str, Any]]:
-        """Returns one entry per changed file with a `patch` field (unified diff)."""
         out: list[dict[str, Any]] = []
         async for raw in self._rest.paginate(
             f"/repos/{owner}/{repo}/pulls/{number}/files", max_pages=max_pages
@@ -82,7 +80,6 @@ class PullsService:
         line: int,
         side: str = "RIGHT",
     ) -> dict[str, Any]:
-        """Single inline comment on a file line."""
         return await self._rest.post(
             f"/repos/{owner}/{repo}/pulls/{number}/comments",
             json_body={

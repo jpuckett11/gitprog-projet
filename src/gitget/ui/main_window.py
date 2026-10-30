@@ -1,4 +1,3 @@
-"""Main application window: login overlay, sidebar, three mode tabs."""
 
 from __future__ import annotations
 
@@ -60,7 +59,6 @@ class MainWindow(QMainWindow):
         self._build_tray()
         self._route_initial()
 
-    # ---------- menus ----------
 
     def _build_menus(self) -> None:
         file_menu = self.menuBar().addMenu("&File")
@@ -124,7 +122,6 @@ class MainWindow(QMainWindow):
             self.activateWindow()
 
     def _refresh_notifications_from_tray(self) -> None:
-        # If signed in, trigger an immediate poll
         if self._workspace is not None:
             self._workspace.poller.trigger_now("notifications")
         else:
@@ -144,7 +141,7 @@ class MainWindow(QMainWindow):
         dock.setWidget(self._terminal)
         dock.setMinimumHeight(180)
         self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, dock)
-        dock.hide()  # start collapsed
+        dock.hide()
         dock.visibilityChanged.connect(self._on_terminal_visibility_changed)
         self._terminal_dock = dock
 
@@ -227,7 +224,6 @@ class MainWindow(QMainWindow):
         self._stack.setCurrentWidget(self._login)
         self.statusBar().showMessage("Signed out.")
 
-    # ---------- workspace ----------
 
     def _route_initial(self) -> None:
         if storage.load_user_token() is not None:
@@ -248,7 +244,6 @@ class MainWindow(QMainWindow):
         ws = Workspace.build(self._settings)
         self._workspace = ws
 
-        # Register polling resources (notifications only for now)
         notifications_svc = NotificationsService(ws.rest)
 
         async def fetch_notifications():
@@ -259,7 +254,6 @@ class MainWindow(QMainWindow):
             interval=float(self._settings.poll_notifications_seconds),
             fetch=fetch_notifications,
         )
-        # Hook the unread count into the tray badge
         if self._tray is not None:
             def _on_notif_change(resource, value):
                 if resource != "notifications" or not isinstance(value, list):
@@ -270,7 +264,6 @@ class MainWindow(QMainWindow):
 
         ws.poller.start()
 
-        # Start webhook bridge / tunnel if configured
         if ws.bridge is not None:
             ws.bridge.state_changed.connect(
                 lambda s: self.statusBar().showMessage(f"webhook bridge: {s}", 5000)
@@ -310,7 +303,6 @@ class MainWindow(QMainWindow):
         splitter.setStretchFactor(1, 4)
         splitter.setSizes([280, 1000])
 
-        # Route repo-picker selection to the modes
         self._repo_picker.selection_changed.connect(self._on_scope_change)
 
         self._workspace_widget = splitter
@@ -319,14 +311,13 @@ class MainWindow(QMainWindow):
     def _on_scope_change(self, scope: str) -> None:
         if not scope:
             return
-        # Investigation, Contents, Pulls need a repo (owner/repo); Admin accepts both.
         if "/" in scope and not scope.startswith("@"):
             self._investigation.set_scope(scope)
             self._contents.set_scope(scope)
             self._pulls.set_scope(scope)
         self._admin.set_scope(scope)
 
-    def closeEvent(self, event) -> None:  # noqa: N802 (Qt API)
+    def closeEvent(self, event) -> None:
         if self._workspace is not None:
             self._workspace.poller.stop()
         super().closeEvent(event)

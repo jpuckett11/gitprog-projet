@@ -1,4 +1,3 @@
-"""QApplication setup and run loop."""
 
 from __future__ import annotations
 

@@ -1,4 +1,3 @@
-"""Repository contents endpoints (file tree + raw content)."""
 
 from __future__ import annotations
 
@@ -11,7 +10,6 @@ from gitget.api.rest import GitHubAPIError, RestClient
 
 @dataclass(slots=True)
 class ContentEntry:
-    """One entry returned by /repos/{owner}/{repo}/contents/{path}."""
 
     name: str
     path: str
@@ -27,13 +25,12 @@ class FileBlob:
     path: str
     sha: str
     size: int
-    encoding: str  # "base64" or "none"
-    content_b64: str | None = None  # set when encoding == "base64"
+    encoding: str
+    content_b64: str | None = None
 
     def decode_bytes(self) -> bytes | None:
         if self.encoding != "base64" or self.content_b64 is None:
             return None
-        # GitHub wraps base64 with newlines; b64decode tolerates them
         return base64.b64decode(self.content_b64)
 
 
@@ -44,10 +41,6 @@ class ContentsService:
     async def list_dir(
         self, owner: str, repo: str, path: str = "", ref: str | None = None
     ) -> list[ContentEntry]:
-        """List a directory. path='' returns the repo root.
-
-        Returns [] for empty repos (GitHub returns 404 with "This repository is empty").
-        """
         params: dict[str, str] = {}
         if ref:
             params["ref"] = ref
@@ -60,7 +53,6 @@ class ContentsService:
             if exc.status == 404 and _is_empty_repo(exc.body):
                 return []
             raise
-        # If `path` points at a file, /contents returns an object, not a list.
         if isinstance(raw, dict):
             return [_entry(raw)]
         return [_entry(e) for e in raw]
@@ -68,7 +60,6 @@ class ContentsService:
     async def get_file(
         self, owner: str, repo: str, path: str, ref: str | None = None
     ) -> FileBlob:
-        """Fetch a single file's metadata + base64 content."""
         params: dict[str, str] = {}
         if ref:
             params["ref"] = ref

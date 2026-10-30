@@ -1,4 +1,3 @@
-"""Login screen — shown when no user token is available in the keyring."""
 
 from __future__ import annotations
 
@@ -23,12 +22,12 @@ from gitget.ui.theme import ACCENT_HI, APP_NAME, APP_TAGLINE, ERROR, SUCCESS, TE
 
 
 class _OAuthWorker(QThread):
-    success = Signal(object)  # TokenResponse
+    success = Signal(object)
     failure = Signal(str)
 
     def __init__(
         self,
-        flow: Callable,  # async fn -> TokenResponse
+        flow: Callable,
         settings: Settings,
         scopes: list[str],
         parent: QWidget | None = None,
@@ -53,9 +52,8 @@ class _OAuthWorker(QThread):
 
 
 class LoginPane(QWidget):
-    """Single screen that lets the user pick OAuth web flow or device flow."""
 
-    logged_in = Signal()  # emitted after token stored
+    logged_in = Signal()
 
     def __init__(self, settings: Settings, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -64,13 +62,11 @@ class LoginPane(QWidget):
 
         self._stack = QStackedWidget()
 
-        # ---- main panel ----
         main = QWidget()
         outer_v = QVBoxLayout(main)
         outer_v.setContentsMargins(0, 0, 0, 0)
         outer_v.addStretch(1)
 
-        # centered card
         card = QWidget()
         card.setMaximumWidth(540)
         card.setObjectName("loginCard")
@@ -87,7 +83,6 @@ class LoginPane(QWidget):
         layout.setContentsMargins(40, 36, 40, 36)
         layout.setSpacing(12)
 
-        # Icon
         icon_label = QLabel()
         icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         pix = QPixmap(str(icon_path()))
@@ -101,7 +96,6 @@ class LoginPane(QWidget):
             )
         layout.addWidget(icon_label)
 
-        # Brand
         brand = QLabel(APP_NAME)
         brand.setAlignment(Qt.AlignmentFlag.AlignCenter)
         brand.setStyleSheet(
@@ -114,7 +108,6 @@ class LoginPane(QWidget):
         tagline.setStyleSheet(f"font-size: 11pt; color: {TEXT_MUTED}; margin-bottom: 16px;")
         layout.addWidget(tagline)
 
-        # spacer
         layout.addSpacing(20)
 
         sub = QLabel("Sign in with your GitHub account")
@@ -130,7 +123,6 @@ class LoginPane(QWidget):
 
         layout.addSpacing(6)
 
-        # Inline client ID prompt for the very first run
         client_id_row = QHBoxLayout()
         client_id_row.addWidget(QLabel("Client ID"))
         self._client_id_edit = QLineEdit(settings.oauth_client_id or "")
@@ -138,7 +130,6 @@ class LoginPane(QWidget):
         client_id_row.addWidget(self._client_id_edit, 1)
         layout.addLayout(client_id_row)
 
-        # buttons
         btn_row = QHBoxLayout()
         self._web_btn = QPushButton("Sign in via browser  →")
         self._web_btn.setStyleSheet(
@@ -169,12 +160,10 @@ class LoginPane(QWidget):
         self._status.setWordWrap(True)
         layout.addWidget(self._status)
 
-        # store success/error colors for runtime swaps
         self._color_success = SUCCESS
         self._color_error = ERROR
         self._color_muted = TEXT_MUTED
 
-        # center the card horizontally
         card_h = QHBoxLayout()
         card_h.addStretch(1)
         card_h.addWidget(card)

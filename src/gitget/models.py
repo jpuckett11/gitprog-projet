@@ -1,7 +1,3 @@
-"""Pydantic models for GitHub entities.
-
-Only the fields we actually use are modelled — GitHub responses include far more.
-"""
 
 from __future__ import annotations
 
@@ -67,7 +63,7 @@ class Issue(_GHBase):
     closed_at: datetime | None = None
     html_url: str
     repository_url: str | None = None
-    pull_request: dict | None = None  # presence indicates this issue is actually a PR
+    pull_request: dict | None = None
 
 
 class PullRequest(_GHBase):
@@ -94,7 +90,7 @@ class NotificationSubject(_GHBase):
     title: str
     url: str | None = None
     latest_comment_url: str | None = None
-    type: str  # Issue, PullRequest, Discussion, Commit, Release, ...
+    type: str
 
 
 class NotificationRepo(_GHBase):
@@ -118,9 +114,8 @@ class Notification(_GHBase):
 
 
 class Discussion(_GHBase):
-    """GraphQL-sourced; field names match the GraphQL schema."""
 
-    id: str  # node ID
+    id: str
     number: int
     title: str
     body: str | None = None

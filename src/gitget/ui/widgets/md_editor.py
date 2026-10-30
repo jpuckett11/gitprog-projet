@@ -1,9 +1,3 @@
-"""Markdown editor with side-by-side live preview.
-
-Top toolbar toggles preview pane. Left = QPlainTextEdit source (monospace),
-right = MarkdownView rendering. Source emits textChanged → preview updates
-on a 150ms debounce timer to keep typing snappy.
-"""
 
 from __future__ import annotations
 
@@ -23,13 +17,6 @@ from gitget.ui.widgets.markdown import MarkdownView
 
 
 class MarkdownEditor(QWidget):
-    """Edit markdown with toggleable live preview.
-
-    API:
-      - toPlainText() / setPlainText() / clear() — source text
-      - setPlaceholderText(text)
-      - text_changed signal (mirrors QPlainTextEdit.textChanged)
-    """
 
     text_changed = Signal()
 
@@ -46,7 +33,6 @@ class MarkdownEditor(QWidget):
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(4)
 
-        # toolbar
         toolbar = QHBoxLayout()
         toolbar.setContentsMargins(2, 0, 2, 0)
         toolbar.addWidget(QLabel("Markdown"))
@@ -59,7 +45,6 @@ class MarkdownEditor(QWidget):
         toolbar.addWidget(self._toggle_btn)
         outer.addLayout(toolbar)
 
-        # splitter
         self._splitter = QSplitter(Qt.Orientation.Horizontal)
 
         self._source = QPlainTextEdit()
@@ -85,22 +70,20 @@ class MarkdownEditor(QWidget):
 
         self._preview.setVisible(preview_visible)
 
-    # ---------- API ----------
 
-    def toPlainText(self) -> str:  # noqa: N802 (Qt convention)
+    def toPlainText(self) -> str:
         return self._source.toPlainText()
 
-    def setPlainText(self, text: str) -> None:  # noqa: N802
+    def setPlainText(self, text: str) -> None:
         self._source.setPlainText(text)
         self._render_preview()
 
     def clear(self) -> None:
         self._source.clear()
 
-    def setPlaceholderText(self, text: str) -> None:  # noqa: N802
+    def setPlaceholderText(self, text: str) -> None:
         self._source.setPlaceholderText(text)
 
-    # ---------- internal ----------
 
     def _on_toggle_preview(self, checked: bool) -> None:
         self._preview.setVisible(checked)

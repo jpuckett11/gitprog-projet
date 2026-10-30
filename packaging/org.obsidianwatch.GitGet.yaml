@@ -1,18 +1,3 @@
-# Flatpak manifest for GitGet.
-#
-# Build (from project root):
-#   flatpak install -y flathub org.freedesktop.Sdk//23.08 org.freedesktop.Platform//23.08
-#   flatpak install -y flathub org.freedesktop.Sdk.Extension.python3//23.08
-#   flatpak-builder --user --install --force-clean build packaging/org.obsidianwatch.GitGet.yaml
-#
-# Run:
-#   flatpak run org.obsidianwatch.GitGet
-#
-# This manifest installs the PyInstaller-built single binary plus desktop/icon
-# files. It is the simplest path that works with our existing build chain.
-# A "build from source" manifest would be cleaner long-term but requires
-# vendoring all Python wheels into the Flatpak sandbox.
-
 app-id: org.obsidianwatch.GitGet
 runtime: org.freedesktop.Platform
 runtime-version: '23.08'
@@ -25,11 +10,11 @@ finish-args:
   - --socket=fallback-x11
   - --socket=wayland
   - --device=dri
-  - --talk-name=org.freedesktop.secrets       # libsecret/keyring
-  - --talk-name=org.freedesktop.Notifications  # desktop notifications
-  - --filesystem=xdg-config/gitget            # config dir
-  - --filesystem=xdg-data/gitget              # data dir (events.db etc.)
-  - --filesystem=xdg-cache/gitget             # cache dir (etag cache)
+  - --talk-name=org.freedesktop.secrets
+  - --talk-name=org.freedesktop.Notifications
+  - --filesystem=xdg-config/gitget
+  - --filesystem=xdg-data/gitget
+  - --filesystem=xdg-cache/gitget
   - --env=QT_QPA_PLATFORMTHEME=
 
 modules:
@@ -37,7 +22,6 @@ modules:
     buildsystem: simple
     sources:
       - type: file
-        # Built locally via:  uv run pyinstaller packaging/gitget.spec
         path: ../dist/gitget
       - type: file
         path: gitget.desktop

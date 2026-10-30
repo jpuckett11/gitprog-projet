@@ -1,13 +1,3 @@
-"""Search mode — global cross-repo search.
-
-UI:
-  Toolbar: type combo, query input (Enter to search), sort combo
-  Left:    Saved searches list (pinned). Click to re-run.
-  Center:  Results list. Double-click opens in browser.
-  Right:   Selected result preview.
-
-Saved searches are persisted in CONFIG_FILE under a [saved_searches] section.
-"""
 
 from __future__ import annotations
 
@@ -85,7 +75,6 @@ class SearchMode(QWidget):
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
 
-        # toolbar
         toolbar = QHBoxLayout()
         toolbar.setContentsMargins(8, 4, 8, 4)
         toolbar.addWidget(QLabel("Type:"))
@@ -118,7 +107,6 @@ class SearchMode(QWidget):
         self._banner = StatusBanner()
         outer.addWidget(self._banner)
 
-        # three-pane: saved | results | preview
         splitter = QSplitter(Qt.Orientation.Horizontal)
 
         left = QWidget()
@@ -168,7 +156,6 @@ class SearchMode(QWidget):
 
         self._refresh_saved_list()
 
-    # ---------- kind / sort wiring ----------
 
     def _current_kind(self) -> SearchKind:
         return self._kind_combo.currentData()
@@ -184,7 +171,6 @@ class SearchMode(QWidget):
     def _on_kind_changed(self) -> None:
         self._sync_sort_options()
 
-    # ---------- search ----------
 
     def _run_search(self) -> None:
         q = self._query_input.text().strip()
@@ -217,7 +203,6 @@ class SearchMode(QWidget):
 
         self._workers.append(run_async(self, do, on_success=on_done, on_failure=on_err))
 
-    # ---------- selection / preview ----------
 
     def _current_result(self) -> SearchResult | None:
         items = self._results_list.selectedItems()
@@ -264,7 +249,6 @@ class SearchMode(QWidget):
         from PySide6.QtCore import QUrl
         QDesktopServices.openUrl(QUrl(r.url))
 
-    # ---------- saved searches ----------
 
     def _refresh_saved_list(self) -> None:
         self._saved_list.clear()
@@ -280,7 +264,6 @@ class SearchMode(QWidget):
         cfg = self._saved.get(name)
         if not cfg:
             return
-        # restore kind
         for i in range(self._kind_combo.count()):
             if self._kind_combo.itemData(i) == cfg.get("kind"):
                 self._kind_combo.setCurrentIndex(i)

@@ -1,4 +1,3 @@
-"""HTTP clients for GitHub REST + GraphQL APIs."""
 
 from gitget.api.graphql import GraphQLClient
 from gitget.api.ratelimit import RateLimitState

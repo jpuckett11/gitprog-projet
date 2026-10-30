@@ -1,4 +1,3 @@
-"""Tests for the FastAPI webhook receiver and HMAC signature."""
 
 from __future__ import annotations
 
@@ -15,7 +14,6 @@ from gitget.receiver.bus import EventBus
 from gitget.receiver.server import ReceiverSettings, build_app
 from gitget.receiver.storage import EventStore
 
-# ---------- signature ----------
 
 def test_signature_matches() -> None:
     body = b'{"x": 1}'
@@ -38,8 +36,6 @@ def test_signature_rejects_wrong_secret() -> None:
 def test_signature_rejects_missing_header() -> None:
     assert not signature.verify("secret", b"{}", None)
 
-
-# ---------- FastAPI app ----------
 
 @pytest.fixture
 def cfg(tmp_path: Path) -> ReceiverSettings:
@@ -94,10 +90,8 @@ def test_webhook_rejects_bad_signature(client: TestClient) -> None:
 
 
 def test_events_recent_requires_auth(client: TestClient, cfg: ReceiverSettings) -> None:
-    # no auth → 401
     assert client.get("/events/recent").status_code == 401
 
-    # write an event so there's something to read back
     body = json.dumps({"action": "opened", "repository": {"full_name": "o/r"}}).encode()
     sig = signature.expected_signature(cfg.webhook_secret, body)
     client.post(
@@ -122,8 +116,6 @@ def test_events_recent_requires_auth(client: TestClient, cfg: ReceiverSettings) 
     assert events[0]["repo"] == "o/r"
 
 
-# ---------- EventStore ----------
-
 @pytest.mark.asyncio
 async def test_event_store_dedup_on_delivery_id(tmp_path: Path) -> None:
     store = EventStore(tmp_path / "events.db")
@@ -137,7 +129,7 @@ async def test_event_store_dedup_on_delivery_id(tmp_path: Path) -> None:
         repo="o/r", received_at=time.time(), payload={"a": 1},
     )
     assert eid1 > 0
-    assert eid2 == -1  # duplicate ignored
+    assert eid2 == -1
 
 
 @pytest.mark.asyncio
@@ -161,8 +153,6 @@ async def test_event_store_purge(tmp_path: Path) -> None:
     assert remaining[0].delivery_id == "new"
 
 
-# ---------- EventBus ----------
-
 @pytest.mark.asyncio
 async def test_event_bus_fanout() -> None:
     bus = EventBus()
@@ -178,7 +168,7 @@ async def test_event_bus_fanout() -> None:
 
     task_a = asyncio.create_task(consumer(received_a))
     task_b = asyncio.create_task(consumer(received_b))
-    await asyncio.sleep(0.05)  # let subscribers register
+    await asyncio.sleep(0.05)
 
     await bus.publish({"id": 1})
     await bus.publish({"id": 2})

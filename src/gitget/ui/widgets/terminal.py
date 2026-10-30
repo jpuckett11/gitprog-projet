@@ -1,14 +1,3 @@
-"""PTY-backed terminal with pyte ANSI emulation.
-
-Spawns bash on a pseudo-terminal so vim, htop, paginated git log, ssh, and
-other curses-style apps all render correctly. Bytes from the PTY master are
-fed into pyte.Screen; the screen buffer is rendered to a custom paint widget
-with per-character colors and a block cursor.
-
-Keys are translated to terminal escape sequences and written to the PTY master.
-
-Linux-only: relies on pty.fork() and TIOCSWINSZ.
-"""
 
 from __future__ import annotations
 
@@ -176,14 +165,14 @@ class TerminalView(QWidget):
         self._screen = screen
         self.update()
 
-    def resizeEvent(self, event: QResizeEvent) -> None:  # noqa: N802
+    def resizeEvent(self, event: QResizeEvent) -> None:
         cols = max(20, int(event.size().width() / self._cell_w))
         rows = max(5, int(event.size().height() / self._cell_h))
         if (cols, rows) != (self._cols, self._rows):
             self._cols, self._rows = cols, rows
             self.size_changed.emit(cols, rows)
 
-    def paintEvent(self, event) -> None:  # noqa: N802
+    def paintEvent(self, event) -> None:
         painter = QPainter(self)
         painter.fillRect(self.rect(), QColor(_DEFAULT_BG))
         if self._screen is None:
@@ -232,7 +221,7 @@ class TerminalView(QWidget):
                 )
         painter.end()
 
-    def keyPressEvent(self, event: QKeyEvent) -> None:  # noqa: N802
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         data = self._key_to_bytes(event)
         if data:
             self.key_pressed.emit(data)
@@ -368,7 +357,7 @@ class Terminal(QWidget):
     def focus_input(self) -> None:
         self._view.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def closeEvent(self, event) -> None:  # noqa: N802
+    def closeEvent(self, event) -> None:
         if self._worker is not None:
             self._worker.stop()
             self._worker = None

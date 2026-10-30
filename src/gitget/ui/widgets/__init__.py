@@ -1,4 +1,3 @@
-"""Shared widgets reused across modes."""
 
 from gitget.ui.widgets.async_runner import run_async
 from gitget.ui.widgets.banners import StatusBanner

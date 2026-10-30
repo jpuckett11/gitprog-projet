@@ -1,8 +1,3 @@
-"""GitHub Search API wrappers.
-
-The search endpoints have a stricter rate limit (30 req/min for authenticated
-users) than the rest of the REST API, so callers should debounce in the UI.
-"""
 
 from __future__ import annotations
 
@@ -18,13 +13,12 @@ SearchKind = Literal["issues", "prs", "repos", "code", "users", "discussions"]
 class SearchResult:
     kind: SearchKind
     title: str
-    url: str  # html_url
-    subtitle: str  # repo + meta line
+    url: str
+    subtitle: str
     raw: dict[str, Any]
 
 
 def _build_query(kind: SearchKind, q: str) -> str:
-    # /search/issues takes both issues and PRs; we add the filter ourselves
     if kind == "issues":
         return f"{q} is:issue"
     if kind == "prs":
@@ -39,7 +33,7 @@ def _endpoint(kind: SearchKind) -> str:
         "repos": "/search/repositories",
         "code": "/search/code",
         "users": "/search/users",
-        "discussions": "/search/discussions",  # NOTE: REST has no public discussion search
+        "discussions": "/search/discussions",
     }[kind]
 
 

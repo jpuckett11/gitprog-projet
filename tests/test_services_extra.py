@@ -1,4 +1,3 @@
-"""Tests for the Phase 2.5/3 services: Search, Pulls, Contents."""
 
 from __future__ import annotations
 
@@ -13,9 +12,6 @@ from gitget.config import Settings
 @pytest.fixture
 def client() -> RestClient:
     return RestClient(Settings(), token_provider=lambda: "test-token")
-
-
-# ---------- Search ----------
 
 
 @pytest.mark.asyncio
@@ -66,9 +62,6 @@ async def test_search_repos(httpx_mock: HTTPXMock, client: RestClient) -> None:
 async def test_search_empty_query_returns_empty(client: RestClient) -> None:
     results = await SearchService(client).search("issues", "   ")
     assert results == []
-
-
-# ---------- Pulls ----------
 
 
 @pytest.mark.asyncio
@@ -148,9 +141,6 @@ async def test_pulls_merge(httpx_mock: HTTPXMock, client: RestClient) -> None:
     assert out["merged"] is True
 
 
-# ---------- Contents ----------
-
-
 @pytest.mark.asyncio
 async def test_contents_list_dir(httpx_mock: HTTPXMock, client: RestClient) -> None:
     httpx_mock.add_response(
@@ -169,7 +159,6 @@ async def test_contents_list_dir(httpx_mock: HTTPXMock, client: RestClient) -> N
 
 @pytest.mark.asyncio
 async def test_contents_list_dir_empty_repo(httpx_mock: HTTPXMock, client: RestClient) -> None:
-    """The 404 'This repository is empty' should be swallowed → []."""
     httpx_mock.add_response(
         url="https://api.github.com/repos/o/r/contents",
         status_code=404,

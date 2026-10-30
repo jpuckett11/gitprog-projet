@@ -1,18 +1,3 @@
-"""FastAPI webhook receiver.
-
-Endpoints:
-  - GET  /healthz        → liveness
-  - POST /webhook        → GitHub webhook target (HMAC-verified)
-  - GET  /events/recent  → poll-style event log (auth: bearer token)
-  - WS   /events         → live event stream (auth: ?token=)
-
-The receiver holds two shared secrets:
-  - GITHUB_WEBHOOK_SECRET  used by GitHub to sign payloads (HMAC-SHA256)
-  - SUBSCRIBER_TOKEN       used by the desktop client to authenticate to /events
-
-Both come from env vars (so they can be set in the systemd unit) or from a
-config file passed via --config.
-"""
 
 from __future__ import annotations
 
@@ -40,8 +25,8 @@ class ReceiverSettings(BaseSettings):
 
     host: str = "0.0.0.0"
     port: int = 8765
-    webhook_secret: str = ""        # GITHUB_WEBHOOK_SECRET
-    subscriber_token: str = ""      # SUBSCRIBER_TOKEN
+    webhook_secret: str = ""
+    subscriber_token: str = ""
     db_path: Path = Path("/var/lib/gitget-receiver/events.db")
     retention_days: int = 14
 
@@ -71,13 +56,11 @@ def build_app(settings: ReceiverSettings | None = None) -> FastAPI:
 
     app = FastAPI(title="gitget-receiver", version="0.1.0", lifespan=lifespan)
 
-    # ---------- liveness ----------
 
     @app.get("/healthz")
     async def healthz() -> dict:
         return {"ok": True, "subscribers": await bus.subscriber_count()}
 
-    # ---------- GitHub webhook ----------
 
     @app.post("/webhook")
     async def webhook(
@@ -131,7 +114,6 @@ def build_app(settings: ReceiverSettings | None = None) -> FastAPI:
         )
         return JSONResponse({"accepted": True})
 
-    # ---------- event replay ----------
 
     @app.get("/events/recent")
     async def events_recent(
@@ -154,7 +136,6 @@ def build_app(settings: ReceiverSettings | None = None) -> FastAPI:
             ]
         }
 
-    # ---------- live WS ----------
 
     @app.websocket("/events")
     async def events_ws(ws: WebSocket, token: str = Query(default="")) -> None:

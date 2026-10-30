@@ -1,4 +1,3 @@
-"""Issue endpoints."""
 
 from __future__ import annotations
 
@@ -28,7 +27,6 @@ class IssuesService:
         async for raw in self._rest.paginate(
             f"/repos/{owner}/{repo}/issues", params=params, max_pages=max_pages
         ):
-            # GitHub returns PRs alongside issues; filter them out
             if raw.get("pull_request"):
                 continue
             out.append(Issue.model_validate(raw))

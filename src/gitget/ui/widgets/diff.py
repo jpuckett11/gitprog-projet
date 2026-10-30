@@ -1,9 +1,3 @@
-"""Unified-diff viewer with color-coded add/remove lines.
-
-Tracks a line map alongside the rendered text so callers can ask
-`current_line_info()` to know which file-line the cursor is on — used by the
-PR review UI to attach inline comments to specific lines.
-"""
 
 from __future__ import annotations
 
@@ -18,11 +12,10 @@ _HUNK_RE = re.compile(r"^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@")
 
 @dataclass(slots=True)
 class LineInfo:
-    """Per-text-block info derived from a unified diff."""
 
-    file_line_new: int  # 0 if not applicable
-    file_line_old: int  # 0 if not applicable
-    side: str  # "RIGHT" (added/context), "LEFT" (removed), or "" (header/blank)
+    file_line_new: int
+    file_line_old: int
+    side: str
 
 
 class DiffView(QTextBrowser):

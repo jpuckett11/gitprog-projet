@@ -1,4 +1,3 @@
-"""Actions / workflow run endpoints."""
 
 from __future__ import annotations
 
@@ -26,9 +25,6 @@ class ActionsService:
         async for raw in self._rest.paginate(
             f"/repos/{owner}/{repo}/actions/runs", params=params, max_pages=max_pages
         ):
-            # paginated workflow_runs returns the wrapper {total_count, workflow_runs: [...]}
-            # but per_page filtering goes via params; httpx returns whatever GitHub returns.
-            # The /runs endpoint paginates inside the wrapper object, so we handle it specially.
             if isinstance(raw, dict) and "workflow_runs" in raw:
                 out.extend(raw["workflow_runs"])
             else:

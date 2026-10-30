@@ -1,4 +1,3 @@
-"""Pull Requests mode — list, view files + diffs, submit reviews."""
 
 from __future__ import annotations
 
@@ -122,7 +121,6 @@ class PullsMode(QWidget):
         btn_row.addWidget(self._comment_btn)
         rl.addLayout(btn_row)
 
-        # Inline comment on currently-selected diff line
         self._inline_btn = QPushButton("Add comment on selected diff line…")
         self._inline_btn.clicked.connect(self._add_inline_comment)
         rl.addWidget(self._inline_btn)
@@ -264,7 +262,7 @@ class PullsMode(QWidget):
 
         async def do():
             return await svc.create_review(
-                owner, repo, number, event=event, body=body  # type: ignore[arg-type]
+                owner, repo, number, event=event, body=body
             )
 
         def on_done(_):
@@ -290,7 +288,6 @@ class PullsMode(QWidget):
             )
             return
 
-        # Prefer commenting on the RIGHT side (new file). For removed lines use LEFT.
         line = info.file_line_new if info.side == "RIGHT" else info.file_line_old
         side = info.side
         path = self._current_file.get("filename", "")
@@ -340,7 +337,7 @@ class PullsMode(QWidget):
         svc = self._svc
 
         async def do():
-            return await svc.merge(owner, repo, number, method=method)  # type: ignore[arg-type]
+            return await svc.merge(owner, repo, number, method=method)
 
         def on_done(_):
             self._banner.show_info(f"#{number} merged ({method}).")

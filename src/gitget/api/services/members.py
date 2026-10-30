@@ -1,4 +1,3 @@
-"""Org member endpoints."""
 
 from __future__ import annotations
 

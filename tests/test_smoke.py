@@ -1,4 +1,3 @@
-"""Smoke tests — imports and basic construction."""
 
 from __future__ import annotations
 
@@ -6,7 +5,6 @@ import pytest
 
 
 def test_imports() -> None:
-    """All top-level modules import without error."""
     import gitget
     import gitget.api
     import gitget.api.services
@@ -14,7 +12,7 @@ def test_imports() -> None:
     import gitget.config
     import gitget.models
     import gitget.polling
-    import gitget.workspace  # noqa: F401
+    import gitget.workspace
 
 
 def test_settings_defaults() -> None:
@@ -59,7 +57,6 @@ def test_make_jwt_roundtrip() -> None:
 
 
 def test_secret_encryption_roundtrip() -> None:
-    """Encrypting with a known keypair produces a payload the same key can decrypt."""
     import base64
 
     from nacl import encoding, public
@@ -74,7 +71,6 @@ def test_secret_encryption_roundtrip() -> None:
 
 
 def test_main_window_constructs(qtbot) -> None:
-    """MainWindow constructs without crashing (no auth required)."""
     from gitget.config import Settings
     from gitget.ui.main_window import MainWindow
 
@@ -84,7 +80,6 @@ def test_main_window_constructs(qtbot) -> None:
 
 
 def test_workspace_builds(qtbot) -> None:
-    """Workspace.build wires all clients without running them."""
     from gitget.config import Settings
     from gitget.workspace import Workspace
 

@@ -1,10 +1,3 @@
-"""GitHub App JWT signing and installation token exchange.
-
-Flow:
-  1. Sign a short-lived (10 min) JWT with the App's private key.
-  2. POST /app/installations/{id}/access_tokens with that JWT to receive a 1-hour
-     installation access token used for repo-scoped API calls.
-"""
 
 from __future__ import annotations
 
@@ -26,14 +19,13 @@ class AppAuthError(RuntimeError):
 @dataclass(slots=True)
 class InstallationToken:
     token: str
-    expires_at: float  # epoch seconds
+    expires_at: float
 
 
 def make_jwt(app_id: int, private_key_pem: str, *, ttl_seconds: int = 540) -> str:
-    """Mint a JWT for the GitHub App. Max 10 min; we use 9 to be safe."""
     now = int(time.time())
     payload = {
-        "iat": now - 60,  # 60s clock skew buffer
+        "iat": now - 60,
         "exp": now + ttl_seconds,
         "iss": str(app_id),
     }
@@ -46,7 +38,6 @@ async def get_installation_token(
     *,
     force_refresh: bool = False,
 ) -> InstallationToken:
-    """Return a valid installation token, refreshing if needed."""
     if not force_refresh:
         cached = storage.load_installation_token(installation_id)
         if cached and not cached.expired and cached.expires_at is not None:
@@ -79,7 +70,6 @@ async def get_installation_token(
 
 
 async def list_installations(settings: Settings) -> list[dict]:
-    """Return all installations of the configured App."""
     if settings.github_app_id is None:
         raise AppAuthError("github_app_id is not configured")
     private_key = storage.load_app_private_key()

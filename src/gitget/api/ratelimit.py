@@ -1,10 +1,3 @@
-"""Rate-limit and retry helpers shared by REST and GraphQL clients.
-
-Honours:
-  - X-RateLimit-Remaining / X-RateLimit-Reset (primary rate limit)
-  - Retry-After header (secondary / abuse rate limits)
-  - 5xx transient errors with exponential backoff
-"""
 
 from __future__ import annotations
 
@@ -22,7 +15,7 @@ log = structlog.get_logger(__name__)
 @dataclass(slots=True)
 class RateLimitState:
     remaining: int = 5000
-    reset_at: float = 0.0  # epoch seconds
+    reset_at: float = 0.0
     resource: str = "core"
 
     @classmethod
@@ -43,7 +36,6 @@ async def sleep_until_reset(state: RateLimitState) -> None:
 
 
 async def backoff_sleep(attempt: int, *, base: float = 1.0, cap: float = 30.0) -> None:
-    """Exponential backoff with full jitter."""
     delay = min(cap, base * (2**attempt))
     await asyncio.sleep(random.uniform(0, delay))
 
@@ -53,7 +45,6 @@ def is_retryable_status(status: int) -> bool:
 
 
 async def handle_retry_after(r: httpx.Response) -> bool:
-    """If response carries Retry-After, sleep accordingly. Returns True if waited."""
     ra = r.headers.get("Retry-After")
     if not ra:
         return False

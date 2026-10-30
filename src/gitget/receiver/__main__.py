@@ -1,4 +1,3 @@
-"""CLI entry point for the webhook receiver: `gitget-receiver`."""
 
 from __future__ import annotations
 

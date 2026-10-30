@@ -1,10 +1,3 @@
-"""Sidebar that lists the user's repos / orgs.
-
-Emits selection_changed with a string like:
-  "owner/repo"   for a repository
-  "@org"         for an organization
-  ""             when selection is cleared
-"""
 
 from __future__ import annotations
 
@@ -30,7 +23,7 @@ class RepoPicker(QWidget):
     def __init__(self, workspace: Workspace, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._workspace = workspace
-        self._worker = None  # keep refs alive
+        self._worker = None
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 8, 8, 8)

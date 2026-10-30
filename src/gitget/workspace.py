@@ -1,8 +1,3 @@
-"""Workspace bundle: dependencies shared by every UI mode.
-
-Avoids passing many separate args into each widget constructor. Built once in
-MainWindow after sign-in.
-"""
 
 from __future__ import annotations
 

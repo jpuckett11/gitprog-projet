@@ -1,13 +1,3 @@
-"""Rasterize the bundled SVG icon to PNGs at standard sizes.
-
-Run with:
-    uv run python packaging/render_pngs.py
-
-Produces packaging/icons/gitget-<size>.png at sizes 16, 24, 32, 48, 64, 128, 256, 512.
-Build scripts (.deb/AppImage) consume these.
-
-Uses PySide6's QSvgRenderer — no extra system dependency needed.
-"""
 
 from __future__ import annotations
 
@@ -28,7 +18,7 @@ def main() -> int:
     out_dir = here / "icons"
     out_dir.mkdir(exist_ok=True)
 
-    app = QApplication.instance() or QApplication(sys.argv)  # noqa: F841
+    app = QApplication.instance() or QApplication(sys.argv)
 
     renderer = QSvgRenderer(str(svg_path))
     if not renderer.isValid():

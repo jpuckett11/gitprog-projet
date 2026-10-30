@@ -1,12 +1,3 @@
-# PyInstaller spec for gitget — produces a single-file binary.
-# Build:
-#   uv run pyinstaller packaging/gitget.spec
-#
-# Output: dist/gitget (used by both the AppImage build and the .deb).
-
-# ruff: noqa
-# fmt: off
-
 from PyInstaller.utils.hooks import collect_submodules, collect_data_files
 
 block_cipher = None

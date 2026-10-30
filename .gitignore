@@ -1,4 +1,3 @@
-# Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -9,32 +8,26 @@ build/
 dist/
 wheels/
 
-# uv / venv
 .venv/
 
-# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# Test/coverage
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
 .coverage
 htmlcov/
 
-# OS
 .DS_Store
 
-# App data (local dev only)
 *.log
 *.db
 *.db-journal
 .gitget-dev/
 
-# Secrets — never commit
 *.pem
 *.key
 *.p12
@@ -42,7 +35,6 @@ private-key*
 .env
 .env.local
 
-# Release artifacts (uploaded to GitHub Releases, not git)
 *.deb
 *.AppImage
 *.flatpak

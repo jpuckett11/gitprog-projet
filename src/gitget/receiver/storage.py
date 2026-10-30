@@ -1,8 +1,3 @@
-"""SQLite event log for the webhook receiver.
-
-Each accepted webhook is persisted so the GUI can replay missed events on
-reconnect. Schema is minimal — we keep the raw JSON body and a few index keys.
-"""
 
 from __future__ import annotations
 
@@ -68,7 +63,6 @@ class EventStore:
                     (delivery_id, event_type, action, repo, received_at, json.dumps(payload)),
                 )
             except aiosqlite.IntegrityError:
-                # duplicate delivery_id (GitHub retries the same event) — ignore
                 return -1
             await db.commit()
             return cur.lastrowid or 0

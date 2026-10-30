@@ -1,4 +1,3 @@
-"""GitHub-style label chip."""
 
 from __future__ import annotations
 
@@ -8,7 +7,6 @@ from gitget.models import Label
 
 
 def _contrast_text_color(hex_color: str) -> str:
-    """Pick black or white text based on the label's bg color luminance."""
     try:
         r = int(hex_color[0:2], 16)
         g = int(hex_color[2:4], 16)

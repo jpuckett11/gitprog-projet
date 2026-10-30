@@ -1,1 +1,1 @@
-"""Mode views (Triage, Investigation, Admin)."""
+pass

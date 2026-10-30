@@ -1,13 +1,3 @@
-"""Admin mode — org/repo dashboard.
-
-Sub-tabs (per scope):
-  - Members (org only)
-  - Secrets (org or repo)
-  - Actions runs (repo)
-  - Webhooks (org or repo)
-
-Scope is set externally via set_scope(scope) where scope is either "owner/repo" or "@org".
-"""
 
 from __future__ import annotations
 
@@ -55,7 +45,6 @@ class AdminMode(QWidget):
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
 
-        # toolbar
         toolbar = QHBoxLayout()
         toolbar.setContentsMargins(8, 4, 8, 4)
         toolbar.addWidget(QLabel("Scope:"))
@@ -97,19 +86,16 @@ class AdminMode(QWidget):
         is_org = scope.startswith("@")
         is_repo = "/" in scope and not is_org
 
-        # enable/disable tabs based on scope
-        self._tabs.setTabEnabled(0, is_org)            # members
-        self._tabs.setTabEnabled(1, is_org or is_repo)  # secrets
-        self._tabs.setTabEnabled(2, is_repo)           # actions
-        self._tabs.setTabEnabled(3, is_org or is_repo)  # webhooks
+        self._tabs.setTabEnabled(0, is_org)
+        self._tabs.setTabEnabled(1, is_org or is_repo)
+        self._tabs.setTabEnabled(2, is_repo)
+        self._tabs.setTabEnabled(3, is_org or is_repo)
 
         self._members_tab.set_scope(scope)
         self._secrets_tab.set_scope(scope)
         self._actions_tab.set_scope(scope)
         self._webhooks_tab.set_scope(scope)
 
-
-# ---------- Members tab ----------
 
 class _MembersTab(QWidget):
     def __init__(self, svc: MembersService, banner: StatusBanner, parent: QWidget | None = None) -> None:
@@ -152,8 +138,6 @@ class _MembersTab(QWidget):
     def _error(self, exc: Exception) -> None:
         self._banner.show_error(f"Members: {exc}")
 
-
-# ---------- Secrets tab ----------
 
 class _SecretsTab(QWidget):
     def __init__(self, svc: SecretsService, banner: StatusBanner, parent: QWidget | None = None) -> None:
@@ -280,8 +264,6 @@ class _SecretsTab(QWidget):
         self._banner.show_error(f"Secrets: {exc}")
 
 
-# ---------- Actions tab ----------
-
 class _ActionsTab(QWidget):
     def __init__(self, svc: ActionsService, banner: StatusBanner, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -335,8 +317,6 @@ class _ActionsTab(QWidget):
     def _error(self, exc: Exception) -> None:
         self._banner.show_error(f"Actions: {exc}")
 
-
-# ---------- Webhooks tab ----------
 
 class _WebhooksTab(QWidget):
     def __init__(self, svc: WebhooksService, banner: StatusBanner, parent: QWidget | None = None) -> None:

@@ -1,9 +1,3 @@
-"""HMAC-SHA256 verification of GitHub webhook payloads.
-
-GitHub signs each webhook body with the shared secret. The signature is sent in
-the `X-Hub-Signature-256` header as `sha256=<hex digest>`. We compare with
-hmac.compare_digest to avoid timing leaks.
-"""
 
 from __future__ import annotations
 

@@ -1,16 +1,3 @@
-"""Triage mode — notification inbox.
-
-Three-pane layout:
-  Filters (left) | Notification list (center) | Detail pane (right)
-
-Actions:
-  - Mark single thread read
-  - Mark all read
-  - Unsubscribe from thread
-  - Open in browser
-
-The notification list is fed by PollingEngine (resource: "notifications").
-"""
 
 from __future__ import annotations
 
@@ -96,7 +83,6 @@ class TriageMode(QWidget):
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
 
-        # toolbar
         toolbar = QHBoxLayout()
         toolbar.setContentsMargins(8, 4, 8, 4)
         self._title = QLabel("Triage — notifications")
@@ -114,14 +100,12 @@ class TriageMode(QWidget):
         self._banner = StatusBanner()
         outer.addWidget(self._banner)
 
-        # three-pane splitter
         splitter = QSplitter(Qt.Orientation.Horizontal)
 
         self._filters = _Filters()
         self._filters.changed.connect(self._refresh_list)
         splitter.addWidget(self._filters)
 
-        # center: list
         center = QWidget()
         cl = QVBoxLayout(center)
         cl.setContentsMargins(0, 0, 0, 0)
@@ -131,7 +115,6 @@ class TriageMode(QWidget):
         cl.addWidget(self._list)
         splitter.addWidget(center)
 
-        # right: detail
         detail = QWidget()
         dl = QVBoxLayout(detail)
         dl.setContentsMargins(8, 8, 8, 8)
@@ -165,15 +148,12 @@ class TriageMode(QWidget):
         splitter.setSizes([200, 500, 700])
         outer.addWidget(splitter, 1)
 
-        # subscribe to polling engine
         workspace.poller.changed.connect(self._on_poll_change)
         workspace.poller.error.connect(self._on_poll_error)
 
-        # if a webhook bridge is wired up, refresh notifications on relevant events
         if workspace.bridge is not None:
             workspace.bridge.event.connect(self._on_webhook_event)
 
-    # ---------- data ----------
 
     def refresh(self) -> None:
         self._banner.show_busy("Loading notifications…")
@@ -195,7 +175,6 @@ class TriageMode(QWidget):
             self._banner.show_error(f"Polling failed: {exc}")
 
     def _on_webhook_event(self, event: object) -> None:
-        # Any of these events may cause a new notification to be created.
         if not isinstance(event, dict):
             return
         relevant = {
@@ -214,7 +193,6 @@ class TriageMode(QWidget):
     def _on_error(self, exc: Exception) -> None:
         self._banner.show_error(f"Couldn't load: {exc}")
 
-    # ---------- list ----------
 
     def _refresh_list(self) -> None:
         self._list.clear()
@@ -250,13 +228,11 @@ class TriageMode(QWidget):
             f"{n.repository.full_name} · {n.subject.type} · reason: {n.reason} · "
             f"updated {humanize(n.updated_at)}"
         )
-        # Defer body fetch to keep selection snappy; user clicks "Open in browser" for full view
         self._detail_body.set_markdown(
             f"**Subject URL:** {n.subject.url or '—'}\n\n"
             f"Click _Open in browser_ for the full thread."
         )
 
-    # ---------- actions ----------
 
     def _open_current(self) -> None:
         n = self._current()
@@ -264,7 +240,6 @@ class TriageMode(QWidget):
             return
         from PySide6.QtCore import QUrl
 
-        # Convert API URL to web URL
         api_url = n.subject.url or ""
         web_url = (
             api_url

@@ -1,4 +1,3 @@
-"""GitHub Notifications endpoints."""
 
 from __future__ import annotations
 
